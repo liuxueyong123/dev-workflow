@@ -58,18 +58,18 @@ Ship      仅在用户批准后 push / PR / 发布 / 部署
 
 ## 能力分工
 
-| 阶段 | Agent-Skills | Superpowers |
-|------|--------------|-------------|
-| Define | `spec-driven-development` / `/spec` | `brainstorming` |
-| Plan | `planning-and-task-breakdown` / `/plan` | `writing-plans` |
-| Isolate | `git-workflow-and-versioning` | `using-git-worktrees` |
-| Build | `incremental-implementation` | `test-driven-development` |
-| Debug | `debugging-and-error-recovery` | `systematic-debugging` |
-| Review | `code-review-and-quality` / `/review` | `requesting-code-review` |
-| Security | `security-and-hardening` | verification support |
-| Simplify | `code-simplification` / `/code-simplify` | verification support |
-| Verify | `/test` where available | `verification-before-completion` |
-| Ship | `shipping-and-launch` / `/ship` | `finishing-a-development-branch` |
+| 阶段     | Agent-Skills                             | Superpowers                      |
+| -------- | ---------------------------------------- | -------------------------------- |
+| Define   | `spec-driven-development` / `/spec`      | `brainstorming`                  |
+| Plan     | `planning-and-task-breakdown` / `/plan`  | `writing-plans`                  |
+| Isolate  | `git-workflow-and-versioning`            | `using-git-worktrees`            |
+| Build    | `incremental-implementation`             | `test-driven-development`        |
+| Debug    | `debugging-and-error-recovery`           | `systematic-debugging`           |
+| Review   | `code-review-and-quality` / `/review`    | `requesting-code-review`         |
+| Security | `security-and-hardening`                 | verification support             |
+| Simplify | `code-simplification` / `/code-simplify` | verification support             |
+| Verify   | `/test` where available                  | `verification-before-completion` |
+| Ship     | `shipping-and-launch` / `/ship`          | `finishing-a-development-branch` |
 
 ## 关键约束
 
@@ -102,12 +102,6 @@ Ship      仅在用户批准后 push / PR / 发布 / 部署
 ```text
 /plugin marketplace add liuxueyong123/dev-workflow
 /plugin install dev-workflow@dev-workflow
-```
-
-本地调试：
-
-```bash
-claude --plugin-dir /path/to/dev-workflow
 ```
 
 插件文件更新后，在 Claude Code 中执行：
@@ -162,19 +156,19 @@ cp -R /tmp/agent-skills/skills/* ~/.agents/skills/
 Claude Code：
 
 ```text
-/dev-workflow 用 Agent-Skills + Superpowers 实现 OAuth 登录
+/dev-workflow 实现 OAuth 登录
 ```
 
 Codex：
 
 ```text
-$dev-workflow 用 Agent-Skills + Superpowers 实现用户分页接口
+$dev-workflow 实现用户分页接口
 ```
 
 自然语言：
 
 ```text
-使用 dev-workflow 修复这个 flaky test；Agent-Skills 和 Superpowers 都已安装。
+使用 dev-workflow 修复这个 flaky test
 ```
 
 ## 仓库结构
