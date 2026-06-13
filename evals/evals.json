@@ -64,7 +64,7 @@
     {
       "id": "trivial-doc-edit",
       "prompt": "Fix a typo in the README heading using dev-workflow.",
-      "expected_output": "Classifies the task as trivial, avoids the full Agent-Skills lifecycle, performs a focused edit, and still uses Superpowers-style verification before reporting completion.",
+      "expected_output": "Classifies the task as trivial, skips Define and Plan, performs a focused edit, still runs Review and Simplify, and uses fresh verification before reporting completion.",
       "files": []
     }
   ]

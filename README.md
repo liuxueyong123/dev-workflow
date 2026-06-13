@@ -24,7 +24,7 @@ Intake    检查 Agent-Skills 和 Superpowers 是否可用
 Define    产出 spec → 🔴 Gate 1 用户确认 → 🔴 Gate 2 询问留档
 Plan      产出 plan → 🔴 Gate 3 用户确认
 Isolate   隔离工作区；greenfield 项目可跳过
-Build     TDD 小步实现
+Build     按已确认的 spec/plan 实现；独立任务可用多 agent
 Debug     仅在构建、测试或行为异常时触发
 Review    代码审查，分析 correctness / readability / architecture / security / performance
 Security  安全敏感改动时与 Review 并行运行
@@ -35,7 +35,7 @@ Ship      🔴 Gate 4 用户明确批准后 push / PR / merge / deploy
 
 ## 硬门禁（v1.4.0）
 
-四个 Hard Gate 是工作流中最关键的机制——每个 Gate 要求输出草稿后 STOP，等待用户明确确认才能继续。跳过或合并且个 Gate 属于工作流违规。
+四个 Hard Gate 是工作流中最关键的机制——每个 Gate 要求输出草稿后 STOP，等待用户明确确认才能继续。跳过或合并任何 Gate 属于工作流违规。
 
 | Gate | 阶段   | 何时触发       | 要求用户做什么          | 被阻塞直到                   |
 |------|--------|----------------|-------------------------|------------------------------|
@@ -69,7 +69,7 @@ Ship      🔴 Gate 4 用户明确批准后 push / PR / merge / deploy
 | Define   | `spec-driven-development` / `/spec`  | `brainstorming`                  | Gate 1 确认 spec + Gate 2 确认留档               |
 | Plan     | `planning-and-task-breakdown` / `/plan` | `writing-plans`               | Gate 3 确认 plan                                 |
 | Isolate  | `git-workflow-and-versioning`        | `using-git-worktrees`            | 工作区安全                                      |
-| Build    | `incremental-implementation`         | `test-driven-development`        | TDD red-green-refactor 通过                      |
+| Build    | `incremental-implementation`         | `test-driven-development` / `subagent-driven-development` | 按已确认 spec/plan 实现；TDD 通过                |
 | Debug    | `debugging-and-error-recovery`       | `systematic-debugging`           | 根因修复 + 回归测试                              |
 | Review   | `code-review-and-quality` / `/review` | `requesting-code-review`        | CRITICAL/HIGH 修复；其余捕获给 Simplify          |
 | Security | `security-and-hardening`             | 项目 audit 命令                  | 安全发现已处理或接受                             |
@@ -113,7 +113,7 @@ Use dev-workflow to fix a flaky test
 
 | 改动类型 | 工作流深度 |
 |----------|-----------|
-| 拼写错误、纯格式文档、元数据文本调整 | 直接编辑 + 验证 |
+| 拼写错误、纯格式文档、元数据文本调整 | 直接编辑 + review + simplify + 验证 |
 | 单文件行为变更 | 简短 spec 说明 + TDD + 聚焦 review |
 | 多文件功能或重构 | 完整 spec + plan + TDD + review + simplify + 验证 |
 | Bug 修复 | 系统调试 + 回归测试 + TDD 修复 + review |
@@ -126,7 +126,7 @@ Use dev-workflow to fix a flaky test
 - **确认先行**：非平凡任务不跳过 Define 和 Plan；spec 和 plan 先在对话中确认再继续。
 - **留档可选**：spec 确认后单独询问留档，不默认写入文件。用户选留档才写 `docs/<feature>/spec.md` 和 `docs/<feature>/plan.md`。
 - **中文正文**：留档文档正文使用中文。技术标识、文件路径、命令名、API 名和引用原文可保留原语言。
-- **Simplify 必跑**：Review 后必须执行 Simplify，无跳过条件。所有 review 发现必须处理（修复、推迟 TODO 或拒绝并说明理由）。
+- **Review/Simplify 必跑**：即使是拼写、纯格式文档或元数据文本调整，也必须跑 Review 和 Simplify。所有 review 发现必须处理（修复、推迟 TODO 或拒绝并说明理由）。
 - **批准边界**：Plan 批准只授权本地编辑、测试、lint/typecheck/build、review、simplify 和 verify。push、merge、PR、发布、部署、凭据修改、第三方资源变更、破坏性数据操作均须再次批准。
 - **验证证据**：无 fresh verification evidence 不报告完成。
 
@@ -176,7 +176,7 @@ CLAUDE.md                      仓库维护规则
 node -e "JSON.parse(require('fs').readFileSync('plugin.json','utf8')); JSON.parse(require('fs').readFileSync('.claude-plugin/plugin.json','utf8')); console.log('json ok')"
 
 # Skill frontmatter
-node -e "const s=require('fs').readFileSync('skills/dev-workflow/SKILL.md','utf8'); if(!/^---\nname: dev-workflow/.m.test(s)) throw new Error('frontmatter missing'); console.log('frontmatter ok')"
+node -e "const s=require('fs').readFileSync('skills/dev-workflow/SKILL.md','utf8'); if(!/^---\nname: dev-workflow/m.test(s)) throw new Error('frontmatter missing'); console.log('frontmatter ok')"
 
 # 硬门禁存在
 node -e "const s=require('fs').readFileSync('skills/dev-workflow/SKILL.md','utf8'); for (const c of ['Hard Gates','GATE 1','GATE 2','GATE 3','STOP. Do NOT proceed']) { if(!s.includes(c)) throw new Error('missing '+c); } console.log('hard gates ok')"

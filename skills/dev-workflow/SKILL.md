@@ -76,10 +76,10 @@ Review and security run in parallel when both are triggered. Never skip a phase 
 | Define              | Agent-Skills `spec-driven-development` or `/spec`           | Superpowers `brainstorming`                  | User approves the spec content; archive choice is recorded                                                                                                                   |
 | Plan                | Agent-Skills `planning-and-task-breakdown` or `/plan`       | Superpowers `writing-plans`                  | User approves the task plan; plan is archived only if archive was chosen after spec approval                                                                                 |
 | Isolate             | Superpowers `using-git-worktrees`                           | Agent-Skills `git-workflow-and-versioning`   | Work area is safe                                                                                                                                                            |
-| Build               | Superpowers `test-driven-development`                       | Agent-Skills `incremental-implementation`    | Focused tests pass                                                                                                                                                           |
+| Build               | Superpowers `test-driven-development`; use `subagent-driven-development` when plan tasks are independent with disjoint write scopes | Agent-Skills `incremental-implementation` | Approved spec/plan implemented; focused tests pass                                                                                                                           |
 | Debug (conditional) | Superpowers `systematic-debugging`                          | Agent-Skills `debugging-and-error-recovery`  | Root cause fixed, regression test added                                                                                                                                      |
-| Review ∥ Security   | Review: Agent-Skills `code-review-and-quality` or `/review` | Superpowers `requesting-code-review`         | All CRITICAL and HIGH findings fixed; remaining IMPORTANT and MINOR findings captured for Simplify                                                                           |
-|                     | Security: Agent-Skills `security-and-hardening`             | Project audit commands                       | Security-sensitive findings addressed                                                                                                                                        |
+| Review              | Review: Agent-Skills `code-review-and-quality` or `/review` | Superpowers `requesting-code-review`         | All CRITICAL and HIGH findings fixed; remaining IMPORTANT and MINOR findings captured for Simplify                                                                           |
+| Security            | Security: Agent-Skills `security-and-hardening`             | Project audit commands                       | Security-sensitive findings addressed                                                                                                                                        |
 | Simplify            | Agent-Skills `code-simplification` or `/code-simplify`      | Superpowers `verification-before-completion` | **Every review finding addressed** (fixed, deferred with comment, or rejected with reason). Duplication removed, dead code deleted, long functions split, behavior unchanged |
 | Verify              | Superpowers `verification-before-completion`                | Agent-Skills `/test`                         | Fresh evidence collected                                                                                                                                                     |
 | Ship                | Agent-Skills `shipping-and-launch` or `/ship`               | Superpowers `finishing-a-development-branch` | User-approved external action                                                                                                                                                |
@@ -88,7 +88,7 @@ Review and security run in parallel when both are triggered. Never skip a phase 
 
 | Change type                                                    | Workflow                                               |
 | -------------------------------------------------------------- | ------------------------------------------------------ |
-| Typo, formatting-only docs, metadata copy                      | Direct edit + verification                             |
+| Typo, formatting-only docs, metadata copy                      | Direct edit, then Review + Simplify + verification     |
 | Single-file behavior change                                    | Short spec note, TDD, focused review                   |
 | Multi-file feature or refactor                                 | Full spec + plan, TDD, review + simplify, verification |
 | Bug fix                                                        | Systematic debugging, regression test, TDD fix, review |
@@ -137,9 +137,9 @@ Each phase has hard gates. Stop at each gate and wait. See [Hard Gates](#hard-ga
 
 ## Execute
 
-TDD as primary discipline: write failing test → confirm failure → implement → pass → refactor.
+Build implements the approved spec according to the approved plan.
 
-Use `incremental-implementation` for vertical slices and feature flags. Use `subagent-driven-development` for independent tasks with disjoint write scopes.
+TDD remains the primary discipline: write failing test → confirm failure → implement → pass → refactor. Use `incremental-implementation` for vertical slices and feature flags. Use `subagent-driven-development` only when plan tasks are independent with disjoint write scopes.
 
 ### After Subagent-Driven Development
 
