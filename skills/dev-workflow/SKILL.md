@@ -132,7 +132,7 @@ Each phase has hard gates. Stop at each gate and wait. See [Hard Gates](#hard-ga
 - Body in Chinese; technical identifiers, paths, and quoted source text may remain in original language.
 - Store under `docs/<feature>/` (kebab-case).
 - `spec.md` for the confirmed spec, `plan.md` for the confirmed plan.
-- If a document already exists, overwrite it immutably — no dated duplicates.
+- If `docs/<feature>/` already exists, auto-suffix with `-2`, `-3`, etc. (`docs/<feature>-2/`, `docs/<feature>-3/`). Never silently overwrite an existing directory.
 
 **CRITICAL:** Never output a spec/plan and immediately start implementing. Spec approval authorizes only the archive question and plan. Plan approval authorizes only local execution (see Approval Boundaries).
 
