@@ -1,0 +1,35 @@
+{
+  "skill_name": "dev-workflow",
+  "evals": [
+    {
+      "id": "claude-code-agent-skills-superpowers",
+      "prompt": "In Claude Code, use dev-workflow to build OAuth login with Agent-Skills and Superpowers installed.",
+      "expected_output": "Uses Agent-Skills for spec, plan, review, code simplification, security, and shipping gates; uses Superpowers for brainstorming, writing-plans, TDD, debugging, worktree or task isolation, and verification before completion.",
+      "files": []
+    },
+    {
+      "id": "codex-agent-skills-superpowers",
+      "prompt": "In Codex, use dev-workflow to add a paginated users endpoint. Agent-Skills are installed in .agents/skills and Superpowers is installed as a Codex plugin.",
+      "expected_output": "Uses the Codex-exposed skill names, keeps Agent-Skills as the quality-gate layer, keeps Superpowers as the execution-discipline layer, and stops before push or PR creation without approval.",
+      "files": []
+    },
+    {
+      "id": "missing-superpowers",
+      "prompt": "Use dev-workflow for a multi-file refactor, but Superpowers is not installed.",
+      "expected_output": "Does not silently run a generic fallback. States that Superpowers is missing, gives installation guidance, and asks whether to install or proceed in explicitly degraded mode.",
+      "files": []
+    },
+    {
+      "id": "security-sensitive-change",
+      "prompt": "Use dev-workflow to add password reset tokens and email delivery to the authentication flow.",
+      "expected_output": "Runs Agent-Skills spec and plan gates, uses Superpowers TDD execution, then requires Agent-Skills security-and-hardening before verification and handoff.",
+      "files": []
+    },
+    {
+      "id": "trivial-doc-edit",
+      "prompt": "Fix a typo in the README heading using dev-workflow.",
+      "expected_output": "Classifies the task as trivial, avoids the full Agent-Skills lifecycle, performs a focused edit, and still uses Superpowers-style verification before reporting completion.",
+      "files": []
+    }
+  ]
+}
