@@ -16,7 +16,19 @@
     {
       "id": "explicit-dev-workflow-overrides-ordinary-task",
       "prompt": "Use dev-workflow to fix a flaky unit test. Agent-Skills and Superpowers are installed.",
-      "expected_output": "Does not treat the request as an ordinary bug fix outside the workflow. Announces that it is using dev-workflow, enters the capability gate and phase tracking, applies the trivial or bug-fix scope rules as appropriate, and completes review, simplification, and verification before reporting completion.",
+      "expected_output": "Does not treat the request as an ordinary bug fix outside the workflow. Announces that it is using dev-workflow, enters the capability gate and phase tracking, requires full spec and plan approval before systematic debugging or TDD work, and completes review, simplification, and verification before reporting completion.",
+      "files": []
+    },
+    {
+      "id": "single-file-behavior-change-requires-spec-plan",
+      "prompt": "Use dev-workflow to change the validation behavior in src/validateEmail.ts only. Agent-Skills and Superpowers are installed.",
+      "expected_output": "Classifies the request as a single-file behavior change, not a trivial edit. Requires the full Define and Plan hard gates with spec approval, archive choice, and plan approval before TDD or implementation.",
+      "files": []
+    },
+    {
+      "id": "bugfix-requires-spec-plan",
+      "prompt": "Use dev-workflow to fix a bug where the retry helper stops after two attempts. Agent-Skills and Superpowers are installed.",
+      "expected_output": "Classifies the request as a bug fix, not a trivial edit. Requires full spec and plan approval before systematic debugging, regression test creation, TDD fix, review, simplification, and verification.",
       "files": []
     },
     {

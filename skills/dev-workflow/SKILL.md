@@ -33,8 +33,8 @@ Create a TodoWrite task for every phase. Each must be `completed` or `deleted` (
 | Task subject      | Skip condition                               |
 | ----------------- | -------------------------------------------- |
 | "Phase: Intake"   | Never                                        |
-| "Phase: Define"   | Trivial change (see Scope Rules)             |
-| "Phase: Plan"     | Trivial change                               |
+| "Phase: Define"   | Trivial change only (see Scope Rules)        |
+| "Phase: Plan"     | Trivial change only                          |
 | "Phase: Isolate"  | Greenfield project with no existing branches |
 | "Phase: Build"    | Never                                        |
 | "Phase: Debug"    | No failures encountered                      |
@@ -56,7 +56,6 @@ Four hard gates require explicit user confirmation before proceeding. **Skipping
 | 4    | Ship   | Before external action | User explicitly requests it |
 
 **Protocol:** (1) Output the complete draft. (2) Ask a clear confirmation question. (3) **STOP. Do NOT proceed**, do NOT write code, do NOT invoke the next skill. (4) Wait for user response. (5) Only then continue.
-
 **Common violations:** outputting spec and immediately coding; asking spec approval + archive in one message; skipping archive question entirely.
 
 ## Workflow
@@ -86,12 +85,14 @@ Review and security run in parallel when both are triggered. Never skip a phase 
 
 ## Scope Rules
 
+Only typo, formatting-only docs, and metadata copy count as trivial changes. Every behavior change requires Define and Plan, even when the edit is expected to touch one file. Every bug fix requires Define and Plan before Debug/Build.
+
 | Change type                                                    | Workflow                                               |
 | -------------------------------------------------------------- | ------------------------------------------------------ |
 | Typo, formatting-only docs, metadata copy                      | Direct edit, then Review + Simplify + verification     |
-| Single-file behavior change                                    | Short spec note, TDD, focused review                   |
+| Single-file behavior change                                    | Full spec + plan, TDD, review + simplify, verification |
 | Multi-file feature or refactor                                 | Full spec + plan, TDD, review + simplify, verification |
-| Bug fix                                                        | Systematic debugging, regression test, TDD fix, review |
+| Bug fix                                                        | Full spec + plan, systematic debugging, regression test, TDD fix, review + simplify, verification |
 | Auth, payment, PII, secrets, permissions, public API, deletion | Full workflow + security-and-hardening                 |
 | Release, deployment, rollout                                   | Ship + branch completion                               |
 

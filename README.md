@@ -114,9 +114,9 @@ Use dev-workflow to fix a flaky test
 | 改动类型 | 工作流深度 |
 |----------|-----------|
 | 拼写错误、纯格式文档、元数据文本调整 | 直接编辑 + review + simplify + 验证 |
-| 单文件行为变更 | 简短 spec 说明 + TDD + 聚焦 review |
+| 单文件行为变更 | 完整 spec + plan + TDD + review + simplify + 验证 |
 | 多文件功能或重构 | 完整 spec + plan + TDD + review + simplify + 验证 |
-| Bug 修复 | 系统调试 + 回归测试 + TDD 修复 + review |
+| Bug 修复 | 完整 spec + plan + 系统调试 + 回归测试 + TDD 修复 + review + simplify + 验证 |
 | 认证/支付/PII/密钥/权限/公开 API/数据删除 | 完整流程 + security-and-hardening |
 | 发布/部署/上线 | shipping-and-launch + 分支完成 |
 
