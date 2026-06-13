@@ -16,7 +16,6 @@ Do NOT activate on: "do not use dev-workflow", "explain dev-workflow", "update t
 ## Invocation Compliance Gate
 
 On positive invocation:
-
 1. Stop any ordinary coding, debugging, or review path.
 2. Send the working update: `Using dev-workflow.`
 3. Check Capability Gate, then create Phase Tracking tasks before editing files.
@@ -67,7 +66,6 @@ intake → define → plan → isolate → build → [debug] → review  ─┐
                                                               ├── simplify → verify → ship
                                                     security ─┘
 ```
-
 Review and security run in parallel when both are triggered. Never skip a phase without marking its task `deleted` with a reason.
 
 ## Phase Ownership
@@ -107,13 +105,11 @@ Each phase has hard gates. Stop at each gate and wait. See [Hard Gates](#hard-ga
 2. Output the complete spec draft.
 
 **🔴 GATE 1 — Spec Approval:**
-
 - Ask: "Does this spec look correct? Shall I proceed to the plan phase?"
 - **STOP. Do NOT proceed to plan. Do NOT ask about archiving. Do NOT write code.**
 - Wait for explicit user confirmation.
 
 **🔴 GATE 2 — Archive Decision:**
-
 - Ask: "Archive this spec to `docs/<feature>/spec.md`? The plan will also be archived if you choose yes."
 - **STOP until the user answers.**
 - Archive: write `docs/<feature>/spec.md`. Don't archive: skip file, note the choice.
@@ -124,7 +120,6 @@ Each phase has hard gates. Stop at each gate and wait. See [Hard Gates](#hard-ga
 2. Output the complete plan draft.
 
 **🔴 GATE 3 — Plan Approval:**
-
 - Ask: "Does this plan look correct? Shall I proceed with implementation?"
 - **STOP. Do NOT proceed to Build. Do NOT write code.**
 - Wait for explicit user confirmation.
@@ -161,7 +156,6 @@ After Build passes: aggregate all findings, fix CRITICAL/HIGH immediately, recor
 ## Simplify (MANDATORY)
 
 Always follows Review. For every finding: **fix it**, **defer it** with `// TODO(simplify):` comment, or **reject it** with explanation. Re-run tests afterward.
-
 **Exit checklist:** all IMPORTANT findings addressed; no function >50 lines added; no dead code; no duplicated logic; all tests pass.
 
 ## Security Gate
