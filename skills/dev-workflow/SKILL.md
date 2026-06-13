@@ -70,8 +70,8 @@ Every arrow is a phase transition. Do not skip a phase without marking its task 
 | Phase               | Primary                                                     | Secondary                                    | Exit gate                                                                                                                                                                    |
 | ------------------- | ----------------------------------------------------------- | -------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Intake              | Capability check (see Capability Gate)                      | —                                            | Agent-Skills and Superpowers both confirmed, or degraded mode explicitly approved                                                                                            |
-| Define              | Agent-Skills `spec-driven-development` or `/spec`           | Superpowers `brainstorming`                  | User approves scope                                                                                                                                                          |
-| Plan                | Agent-Skills `planning-and-task-breakdown` or `/plan`       | Superpowers `writing-plans`                  | User approves task plan                                                                                                                                                      |
+| Define              | Agent-Skills `spec-driven-development` or `/spec`           | Superpowers `brainstorming`                  | User approves the spec content; archive choice is recorded                                                                                                                    |
+| Plan                | Agent-Skills `planning-and-task-breakdown` or `/plan`       | Superpowers `writing-plans`                  | User approves the task plan; plan is archived only if archive was chosen after spec approval                                                                                  |
 | Isolate             | Superpowers `using-git-worktrees`                           | Agent-Skills `git-workflow-and-versioning`   | Work area is safe                                                                                                                                                            |
 | Build               | Superpowers `test-driven-development`                       | Agent-Skills `incremental-implementation`    | Focused tests pass                                                                                                                                                           |
 | Debug (conditional) | Superpowers `systematic-debugging`                          | Agent-Skills `debugging-and-error-recovery`  | Root cause fixed, regression test added                                                                                                                                      |
@@ -97,20 +97,35 @@ Every arrow is a phase transition. Do not skip a phase without marking its task 
 For non-trivial work:
 
 1. Use Agent-Skills `/spec` or `spec-driven-development` to define the work.
-2. Use Superpowers `brainstorming` to resolve ambiguity and force user approval before implementation.
-3. Use Agent-Skills `/plan` or `planning-and-task-breakdown` for lifecycle-level decomposition.
-4. Use Superpowers `writing-plans` to produce exact implementation steps, file paths, commands, and expected outputs.
+2. Use Superpowers `brainstorming` to resolve ambiguity.
+3. Output the spec draft in the conversation and stop for user confirmation.
+4. After the user approves the spec content, ask whether the user wants to archive the spec/plan documents.
+5. If the user chooses archive, write the spec to `docs/<feature>/spec.md`. If the user chooses not to archive, do not write the spec, and do not write the later plan for this workflow run.
+6. Use Agent-Skills `/plan` or `planning-and-task-breakdown` for lifecycle-level decomposition.
+7. Use Superpowers `writing-plans` to produce exact implementation steps, file paths, commands, and expected outputs.
+8. Output the plan draft in the conversation and stop for user confirmation.
+9. If the user chose archive earlier, write the approved plan to `docs/<feature>/plan.md`. If the user chose not to archive, keep the plan in the conversation only.
 
 Do not write implementation code before spec and plan approval unless the task is explicitly classified as trivial.
 
+Spec approval authorizes only the archive-choice question and plan creation. Plan approval authorizes local execution only (see Approval Boundaries).
+
 ### Spec And Plan Document Rules
 
-Every spec or plan document created by Agent-Skills, Superpowers, or dev-workflow MUST follow these rules:
+Do not archive spec or plan documents by default. Every spec or plan draft is first presented in the conversation for user confirmation. After the spec is approved, ask whether the user wants the workflow artifacts archived.
+
+If the user chooses not to archive:
+
+1. Do not create or update `docs/<feature>/spec.md`.
+2. Do not create or update `docs/<feature>/plan.md`.
+3. Continue the workflow using the confirmed conversation drafts.
+
+If the user chooses archive, every spec or plan document created by Agent-Skills, Superpowers, or dev-workflow MUST follow these rules:
 
 1. Write the document body in Chinese. Technical identifiers, file paths, command names, API names, and quoted source text may remain in their original language.
 2. Store documents under `docs/<feature>/`, where `<feature>` is a short kebab-case feature or task name chosen from the user's request.
-3. Use exactly `docs/<feature>/spec.md` for the approved spec.
-4. Use exactly `docs/<feature>/plan.md` for the approved implementation plan.
+3. Use exactly `docs/<feature>/spec.md` for the confirmed spec.
+4. Use exactly `docs/<feature>/plan.md` for the confirmed implementation plan.
 5. If an upstream skill suggests another default path, override it with this repository rule.
 6. If a document already exists for that feature, update the existing file immutably by writing the new complete version instead of creating dated duplicates.
 

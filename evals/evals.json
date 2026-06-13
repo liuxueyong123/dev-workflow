@@ -4,13 +4,13 @@
     {
       "id": "claude-code-agent-skills-superpowers",
       "prompt": "In Claude Code, use dev-workflow to build OAuth login with Agent-Skills and Superpowers installed.",
-      "expected_output": "Uses Agent-Skills for spec, plan, review, code simplification, security, and shipping gates; uses Superpowers for brainstorming, writing-plans, TDD, debugging, worktree or task isolation, and verification before completion. Any spec or plan documents are written in Chinese under docs/<feature>/spec.md and docs/<feature>/plan.md.",
+      "expected_output": "Uses Agent-Skills for spec, plan, review, code simplification, security, and shipping gates; uses Superpowers for brainstorming, writing-plans, TDD, debugging, worktree or task isolation, and verification before completion. Presents the spec and plan drafts in the conversation for confirmation, asks whether to archive after spec approval, and archives Chinese documents under docs/<feature>/spec.md and docs/<feature>/plan.md only if the user chooses archive.",
       "files": []
     },
     {
       "id": "codex-agent-skills-superpowers",
       "prompt": "In Codex, use dev-workflow to add a paginated users endpoint. Agent-Skills are installed in .agents/skills and Superpowers is installed as a Codex plugin.",
-      "expected_output": "Uses the Codex-exposed skill names, keeps Agent-Skills as the quality-gate layer, keeps Superpowers as the execution-discipline layer, writes spec/plan documents in Chinese under docs/<feature>/spec.md and docs/<feature>/plan.md, and stops before push or PR creation without approval.",
+      "expected_output": "Uses the Codex-exposed skill names, keeps Agent-Skills as the quality-gate layer, keeps Superpowers as the execution-discipline layer, confirms spec and plan drafts in the conversation, asks the user whether to archive after spec approval, and stops before push or PR creation without approval.",
       "files": []
     },
     {
@@ -22,7 +22,19 @@
     {
       "id": "security-sensitive-change",
       "prompt": "Use dev-workflow to add password reset tokens and email delivery to the authentication flow.",
-      "expected_output": "Runs Agent-Skills spec and plan gates with Chinese documents under docs/<feature>/spec.md and docs/<feature>/plan.md, uses Superpowers TDD execution, then requires Agent-Skills security-and-hardening before verification and handoff.",
+      "expected_output": "Runs Agent-Skills spec and plan gates, confirms both drafts with the user before implementation, asks whether to archive after spec approval, uses Superpowers TDD execution only after plan approval, then requires Agent-Skills security-and-hardening before verification and handoff.",
+      "files": []
+    },
+    {
+      "id": "spec-plan-no-archive",
+      "prompt": "Use dev-workflow for a multi-file feature. After the spec looks good, the user says they do not want to archive the workflow docs.",
+      "expected_output": "Presents the spec draft in the conversation and waits for confirmation. After spec approval, asks whether to archive. When the user chooses no archive, does not create or update docs/<feature>/spec.md, later presents the plan draft in the conversation for confirmation, and does not create or update docs/<feature>/plan.md.",
+      "files": []
+    },
+    {
+      "id": "spec-plan-archive",
+      "prompt": "Use dev-workflow for a multi-file feature. After the spec looks good, the user says to archive the workflow docs.",
+      "expected_output": "Presents the spec draft in the conversation and waits for confirmation. After spec approval, asks whether to archive. When the user chooses archive, writes the confirmed Chinese spec to docs/<feature>/spec.md, later presents the plan draft in the conversation for confirmation, and writes the confirmed Chinese plan to docs/<feature>/plan.md.",
       "files": []
     },
     {
