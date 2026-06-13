@@ -14,6 +14,18 @@
       "files": []
     },
     {
+      "id": "explicit-dev-workflow-overrides-ordinary-task",
+      "prompt": "Use dev-workflow to fix a flaky unit test. Agent-Skills and Superpowers are installed.",
+      "expected_output": "Does not treat the request as an ordinary bug fix outside the workflow. Announces that it is using dev-workflow, enters the capability gate and phase tracking, applies the trivial or bug-fix scope rules as appropriate, and completes review, simplification, and verification before reporting completion.",
+      "files": []
+    },
+    {
+      "id": "slash-dev-workflow-positive-invocation",
+      "prompt": "/dev-workflow update the README usage example and verify the change.",
+      "expected_output": "Treats /dev-workflow as a positive invocation, switches into dev-workflow before doing task-specific work, classifies the documentation edit by scope, performs the focused edit only after the workflow gate, and reports verification evidence.",
+      "files": []
+    },
+    {
       "id": "claude-code-agent-skills-superpowers",
       "prompt": "In Claude Code, use dev-workflow to build OAuth login with Agent-Skills and Superpowers installed.",
       "expected_output": "Uses Agent-Skills for spec, plan, review, code simplification, security, and shipping gates; uses Superpowers for brainstorming, writing-plans, TDD, debugging, worktree or task isolation, and verification before completion. Presents the spec and plan drafts in the conversation for confirmation, asks whether to archive after spec approval, and archives Chinese documents under docs/<feature>/spec.md and docs/<feature>/plan.md only if the user chooses archive.",

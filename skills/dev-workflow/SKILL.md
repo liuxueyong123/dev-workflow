@@ -1,22 +1,40 @@
 ---
 name: dev-workflow
-description: Use only when the user explicitly invokes dev-workflow, $dev-workflow, /dev-workflow, or dev-flow by name. Do not use for ordinary coding requests, defect fixes, cleanup work, sensitive changes, or generic requests to combine Agent-Skills and Superpowers unless dev-workflow/dev-flow is explicitly named.
+description: MUST use when the user explicitly asks to use, run, invoke, follow, or apply dev-workflow, $dev-workflow, /dev-workflow, or dev-flow by name, including routine code edits, defect repair, restructuring, cleanup, and sensitive work. Do not use when the user does not name dev-workflow/dev-flow, negates use of it, or only asks to explain or edit the skill itself.
 ---
 
 # Dev Workflow
 
 ## Explicit Invocation Only
 
-Use this skill only when the user explicitly invokes one of these names:
+Use this skill only when the user explicitly invokes one of these names as the workflow to use:
 
 - `dev-workflow`
 - `$dev-workflow`
 - `/dev-workflow`
 - `dev-flow`
 
-Do not use this skill for ordinary coding requests, defect fixes, cleanup work, sensitive changes, or generic requests to use Agent-Skills and Superpowers unless the user explicitly names `dev-workflow` or `dev-flow`.
+Explicit invocation includes phrasing such as "use dev-workflow", "run /dev-workflow", "follow dev-flow", "用 dev-workflow", or "按 dev-flow 处理". Once the user positively invokes one of these names, this skill is mandatory even if the underlying task looks like routine coding, defect repair, cleanup, restructuring, or sensitive work.
+
+Do not use this skill for ordinary coding requests, defect fixes, cleanup work, sensitive changes, or generic requests to use Agent-Skills and Superpowers unless the user explicitly names `dev-workflow` or `dev-flow` as the workflow to use.
 
 If the user does not explicitly name `dev-workflow` or `dev-flow`, use the appropriate individual skills instead of this orchestrator.
+
+Do not treat negative or informational mentions as invocation. Examples: "do not use dev-workflow", "why didn't dev-workflow run?", "explain dev-workflow", or "update the dev-workflow skill" should be handled with the appropriate individual skill unless the user also explicitly asks to run this workflow on the task.
+
+## Invocation Compliance Gate
+
+Before any task action, scan the latest user request for a positive invocation of `dev-workflow`, `$dev-workflow`, `/dev-workflow`, or `dev-flow`.
+
+If positive invocation is present:
+
+1. Stop any ordinary coding, debugging, review, or documentation path.
+2. Do not substitute a generic checklist or individual skills-only workflow.
+3. Send the working update exactly in the Response Shape section, starting with `Using dev-workflow.`
+4. Enter Capability Gate and then Phase Tracking before editing files or running task-specific commands.
+5. Complete or explicitly skip every required phase before the final report.
+
+Failing to switch into this workflow after a positive invocation is a skill violation.
 
 ## Purpose
 

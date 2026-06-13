@@ -1,187 +1,132 @@
 # Dev Workflow
 
-`dev-workflow` 是一个把 **Agent-Skills** 和 **Superpowers** 串起来的开发流程 skill。
+`dev-workflow` 是一个显式调用的开发流程 skill，用来把 **Agent-Skills** 的质量门禁和 **Superpowers** 的执行纪律串成一条端到端工作流。
 
-它的定位很明确：
+它不替代 Agent-Skills 或 Superpowers，也不是普通任务的默认流程。只有用户明确要求使用 `dev-workflow`、`$dev-workflow`、`/dev-workflow` 或 `dev-flow` 时才启用。
 
-- **Agent-Skills** 提供生产级工程门禁：`/spec`、`/plan`、`/build`、`/test`、`/review`、`/code-simplify`、`/ship`，以及 spec、任务拆解、代码审查、安全、性能、发布等 lifecycle skills。
-- **Superpowers** 提供执行纪律：brainstorming、writing-plans、TDD、系统化调试、worktree 隔离、subagent-driven development、verification-before-completion、finishing-a-development-branch。
-- **dev-workflow** 负责把两者编排成一个连续流程，避免只规划不执行、只写代码不审查、只跑测试不做安全和发布门禁。
+## 解决什么问题
 
-Claude Code 和 Codex 都可以参与，但它们只是运行入口；主能力来自 Agent-Skills + Superpowers。
+- 避免只写 spec、不执行。
+- 避免只写代码、不 review。
+- 避免只跑测试、不做安全和发布门禁。
+- 避免 Agent-Skills 与 Superpowers 各自为政，缺少统一阶段状态。
 
-## 总体流程
+Claude Code 和 Codex 都可以运行本 skill；核心能力来自 Agent-Skills + Superpowers。
+
+## 触发规则
+
+正向显式调用时必须使用本 workflow，例如：
 
 ```text
-Intake (能力可用性检查)
-  -> Define        Agent-Skills /spec + Superpowers brainstorming
-  -> Archive?      用户确认 spec 后选择是否留档
-  -> Plan          Agent-Skills /plan + Superpowers writing-plans
-  -> Isolate       Superpowers worktree / task isolation
-  -> Build         Superpowers TDD + Agent-Skills incremental implementation
-  -> [Debug]       Superpowers systematic debugging（仅在构建或测试失败时触发）
-  -> Review ─┐     Agent-Skills code-review-and-quality
-             ├───  （两者并行，互不依赖）
-  -> Security ┘    Agent-Skills security-and-hardening（安全敏感改动触发）
-  -> Simplify      Agent-Skills code-simplification
-  -> Verify        Superpowers verification-before-completion
-  -> Ship/Handoff  Agent-Skills shipping + Superpowers finishing branch
+/dev-workflow 用 Agent-Skills + Superpowers 实现 OAuth 登录
+Use dev-workflow to fix a flaky unit test
+按 dev-flow 处理这个多文件重构
 ```
 
-## 两套能力如何分工
+没有显式点名时，不要自动启用：
 
-| 阶段 | 主能力 | 辅助能力 | 目标 |
-|------|--------|----------|------|
-| Intake | 能力可用性检查 | — | 确认 Agent-Skills 和 Superpowers 均已安装，否则阻断 |
-| Define | Agent-Skills `spec-driven-development` / `/spec` | Superpowers `brainstorming` | 明确范围、验收标准、边界，先在对话中确认 spec |
-| Archive? | dev-workflow 留档选择 | 用户确认 | spec 内容确认后询问是否需要留档 |
-| Plan | Agent-Skills `planning-and-task-breakdown` / `/plan` | Superpowers `writing-plans` | 拆成小任务、文件路径、验证步骤，先在对话中确认 plan |
-| Isolate | Superpowers `using-git-worktrees` | Agent-Skills `git-workflow-and-versioning` | 隔离改动，避免污染主工作区 |
-| Build | Superpowers `test-driven-development` | Agent-Skills `incremental-implementation` | 红绿重构，小步提交 |
-| Debug（条件） | Superpowers `systematic-debugging` | Agent-Skills `debugging-and-error-recovery` | 构建或测试失败时先找根因再修复 |
-| Review ∥ Security | Review: Agent-Skills `code-review-and-quality` / `/review` | Superpowers `requesting-code-review` | 五维审查，修复 CRITICAL/HIGH |
-| | Security: Agent-Skills `security-and-hardening` | 项目安全检查命令 | 认证、支付、PII、API、权限等必须过门 |
-| Simplify | Agent-Skills `code-simplification` / `/code-simplify` | Superpowers verification loop | 删除重复和过度设计 |
-| Verify | Superpowers `verification-before-completion` | Agent-Skills `/test` | 用最新证据证明完成 |
-| Ship | Agent-Skills `shipping-and-launch` / `/ship` | Superpowers `finishing-a-development-branch` | PR、发布、回滚计划和交付说明 |
+```text
+实现 OAuth 登录
+修复这个测试
+用 Agent-Skills 和 Superpowers 做一下
+```
 
-## 关键规则
+负向或说明性提及也不要当作执行调用：
 
-1. **Agent-Skills 和 Superpowers 是主依赖**：如果其中一个缺失，不要静默降级成普通 checklist；先提示安装，或让用户明确同意降级执行。
-2. **只允许显式触发**：只有用户明确点名 `dev-workflow`、`$dev-workflow`、`/dev-workflow` 或 `dev-flow` 时才使用本 skill；普通功能、Bug、重构、安全敏感改动或泛泛提到 Agent-Skills + Superpowers 都不能自动触发。
-3. **Spec 和 Plan 是手动确认点**：非平凡功能必须先在对话中输出 spec 和 plan 草案，用户批准内容后再进入下一阶段。
-4. **留档是单独选择**：spec 内容确认后必须询问用户是否需要留档；只有用户选择留档时才写入 `docs/<feature>/spec.md`，并且后续 plan 才会写入 `docs/<feature>/plan.md`。
-5. **计划批准只覆盖本地执行**：本地编辑、测试、review、simplify、verify 可以继续推进。
-6. **外部动作必须再次确认**：push、merge、PR、发布、部署、凭据修改、第三方资源修改、破坏性数据操作都必须显式审批。
-7. **TDD 优先采用 Superpowers**：Agent-Skills 也有测试能力，但红绿重构纪律以 Superpowers 为主。
-8. **质量门禁优先采用 Agent-Skills**：代码审查、简化、安全、发布门禁以 Agent-Skills 为主。
-9. **完成声明必须有验证证据**：最终报告前必须运行 fresh verification，并说明命令和结果。
-10. **选择留档时使用中文和固定路径**：留档文档使用 `docs/<feature>/spec.md` 和 `docs/<feature>/plan.md`；`<feature>` 使用简短 kebab-case 名称。技术标识、路径、命令、API 名称和引用文本可以保留原语言。
+```text
+不要使用 dev-workflow
+解释一下 dev-workflow 是什么
+更新 dev-workflow skill 文档
+```
 
-## 显式调用后的执行建议
+## 流程概览
 
-以下建议只适用于用户已经明确点名 `dev-workflow`、`$dev-workflow`、`/dev-workflow` 或 `dev-flow` 的场景。
+```text
+Intake    检查 Agent-Skills 和 Superpowers 是否可用
+Define    产出 spec 草案，用户确认
+Archive   spec 确认后询问是否留档
+Plan      产出 plan 草案，用户确认
+Isolate   隔离工作区或确认当前工作区安全
+Build     TDD / 小步实现
+Debug     仅在构建、测试或行为异常时触发
+Review    代码质量审查，修复 CRITICAL/HIGH
+Security  安全敏感改动时触发
+Simplify  必跑，处理 review 遗留问题和过度复杂度
+Verify    fresh verification 后才能报告完成
+Ship      仅在用户批准后 push / PR / 发布 / 部署
+```
 
-| 任务 | 推荐流程 |
-|------|----------|
-| 拼写、格式、轻量文档 | 直接编辑 + Superpowers verification |
-| 单文件行为变更 | 简短 spec + Superpowers TDD + focused Agent-Skills review |
-| 多文件功能 | `/spec` -> `/plan` -> Superpowers TDD execution -> `/review` -> `/code-simplify` -> verify |
-| Bug 修复 | Superpowers systematic debugging -> regression test -> fix -> Agent-Skills review |
-| 认证、支付、PII、公开 API、权限 | 完整流程 + Agent-Skills security-and-hardening |
-| 发布或上线 | Agent-Skills shipping-and-launch + Superpowers finishing-a-development-branch |
+## 能力分工
+
+| 阶段 | Agent-Skills | Superpowers |
+|------|--------------|-------------|
+| Define | `spec-driven-development` / `/spec` | `brainstorming` |
+| Plan | `planning-and-task-breakdown` / `/plan` | `writing-plans` |
+| Isolate | `git-workflow-and-versioning` | `using-git-worktrees` |
+| Build | `incremental-implementation` | `test-driven-development` |
+| Debug | `debugging-and-error-recovery` | `systematic-debugging` |
+| Review | `code-review-and-quality` / `/review` | `requesting-code-review` |
+| Security | `security-and-hardening` | verification support |
+| Simplify | `code-simplification` / `/code-simplify` | verification support |
+| Verify | `/test` where available | `verification-before-completion` |
+| Ship | `shipping-and-launch` / `/ship` | `finishing-a-development-branch` |
+
+## 关键约束
+
+- Agent-Skills 和 Superpowers 都是主依赖；缺失时不要静默降级成普通 checklist。
+- 非平凡任务先在对话中确认 spec，再确认 plan。
+- spec 确认后单独询问是否留档；只有用户选择留档才写入 `docs/<feature>/spec.md` 和 `docs/<feature>/plan.md`。
+- 留档文档正文使用中文；技术标识、路径、命令、API 名称和引用文本可以保留原语言。
+- 计划批准只授权本地编辑、测试、review、simplify 和 verify。
+- push、merge、PR、发布、部署、凭据修改、付费任务、第三方资源变更和破坏性数据操作都必须再次获得明确批准。
+- Review 后必须进入 Simplify；Simplify 没有跳过条件。
+- 没有 fresh verification evidence，不允许报告完成。
 
 ## 安装到 Claude Code
 
-### 1. 安装 Superpowers
-
-优先使用 Claude Code 官方 marketplace：
+安装 Superpowers：
 
 ```text
 /plugin install superpowers@claude-plugins-official
 ```
 
-如果需要使用 Superpowers 自己的 marketplace：
-
-```text
-/plugin marketplace add obra/superpowers-marketplace
-/plugin install superpowers@superpowers-marketplace
-```
-
-### 2. 安装 Agent-Skills
+安装 Agent-Skills：
 
 ```text
 /plugin marketplace add addyosmani/agent-skills
 /plugin install agent-skills@addy-agent-skills
 ```
 
-如果 SSH clone 有问题，可以用 HTTPS：
-
-```text
-/plugin marketplace add https://github.com/addyosmani/agent-skills.git
-/plugin install agent-skills@addy-agent-skills
-```
-
-安装后应能使用这些入口：
-
-```text
-/spec
-/plan
-/build
-/test
-/review
-/code-simplify
-/ship
-```
-
-### 3. 安装 dev-workflow
-
-从你发布到 GitHub 的 marketplace 安装：
+安装 dev-workflow：
 
 ```text
 /plugin marketplace add liuxueyong123/dev-workflow
 /plugin install dev-workflow@dev-workflow
 ```
 
-如果 marketplace 名称和仓库名不同，以 `/plugin marketplace list` 显示的名称为准：
-
-```text
-/plugin install dev-workflow@<marketplace-name>
-```
-
-本地插件调试：
+本地调试：
 
 ```bash
 claude --plugin-dir /path/to/dev-workflow
 ```
 
-如果用插件方式加载，修改后在 Claude Code 内执行：
+插件文件更新后，在 Claude Code 中执行：
 
 ```text
 /reload-plugins
 ```
 
-### 4. Claude Code 使用方式
-
-推荐直接调用：
-
-```text
-/dev-workflow 用 Agent-Skills + Superpowers 实现 OAuth 登录
-```
-
-或者从 Agent-Skills lifecycle command 开始：
-
-```text
-/spec 构建 OAuth 登录；后续用 dev-workflow 串联 Superpowers 执行和 Agent-Skills 门禁
-```
-
 ## 安装到 Codex
 
-Codex 也能使用 SKILL.md，但安装路径和 Claude Code 不同。
-
-### 1. 安装 Superpowers
-
-在 Codex CLI 中打开插件界面：
+安装 Superpowers：
 
 ```text
 /plugins
 ```
 
-搜索：
+在插件界面搜索并安装 `Superpowers`。
 
-```text
-superpowers
-```
-
-选择 `Install Plugin`。
-
-Codex App 中可以在侧边栏 `Plugins` 里找到 `Superpowers` 并安装。
-
-### 2. 安装 Agent-Skills
-
-Agent-Skills 的 skills 是普通 `SKILL.md` 目录，Codex 可从 `.agents/skills` 或 `~/.agents/skills` 读取。
-
-个人全局安装：
+安装 Agent-Skills：
 
 ```bash
 git clone https://github.com/addyosmani/agent-skills.git /tmp/agent-skills
@@ -189,99 +134,62 @@ mkdir -p ~/.agents/skills
 cp -R /tmp/agent-skills/skills/* ~/.agents/skills/
 ```
 
-项目内安装：
+安装 dev-workflow：
 
-```bash
-git clone https://github.com/addyosmani/agent-skills.git /tmp/agent-skills
-mkdir -p .agents/skills
-cp -R /tmp/agent-skills/skills/* .agents/skills/
-```
+1. 在 Codex CLI 执行 `/plugins`，或在 Codex App 侧边栏打开 `Plugins`。
+2. 添加 marketplace：`liuxueyong123/dev-workflow`。
+3. 安装 `dev-workflow`。
 
-### 3. 安装 dev-workflow
+如果 Codex 显示的 skill 名带插件前缀，以界面显示为准。
 
-从你发布到 GitHub 的 marketplace 安装：
-
-1. 在 Codex CLI 中打开 `/plugins`，或在 Codex App 侧边栏打开 `Plugins`。
-2. 添加 GitHub marketplace：`liuxueyong123/dev-workflow`。
-3. 选择 `dev-workflow` 并安装。
-
-如果 Codex 显示的 marketplace 或 skill 名称带前缀，以界面显示为准。
-
-### 4. 推荐 AGENTS.md 配置
-
-在项目 `AGENTS.md` 中加入：
+## 推荐 AGENTS.md 片段
 
 ```markdown
 ## Development Workflow
 
-- 只有用户明确点名 `dev-workflow`、`$dev-workflow`、`/dev-workflow` 或 `dev-flow` 时才使用本 skill。
-- 普通功能开发、Bug 修复、重构和安全敏感改动不能自动触发 `$dev-workflow`。
-- `$dev-workflow` 必须组合 Agent-Skills 和 Superpowers，而不是退化成普通 checklist。
-- Agent-Skills 负责 spec、plan、review、code-simplify、security、ship 门禁。
-- Superpowers 负责 brainstorming、writing-plans、TDD、systematic-debugging、worktree、verification。
+- 只有用户明确点名 `dev-workflow`、`$dev-workflow`、`/dev-workflow` 或 `dev-flow` 并要求使用该流程时，才启用本 skill。
+- 一旦用户正向显式调用，必须先切入 dev-workflow，再执行任务本身。
+- 普通功能开发、Bug 修复、重构和安全敏感改动不能自动触发 dev-workflow。
+- `dev-workflow` 必须组合 Agent-Skills 和 Superpowers，而不是退化成普通 checklist。
 - Spec 和 plan 先在对话中确认；spec 确认后询问用户是否留档。
-- 只有用户选择留档时，spec/plan 文档才写入 `docs/<feature>/spec.md` 与 `docs/<feature>/plan.md`，并且正文必须使用中文。
+- 只有用户选择留档时，spec/plan 才写入 `docs/<feature>/spec.md` 与 `docs/<feature>/plan.md`，并且正文必须使用中文。
 - 如果 Agent-Skills 或 Superpowers 缺失，先提示安装；只有用户明确同意才允许降级执行。
 - push、merge、PR、发布、部署、凭据或第三方资源变更前必须先询问用户。
 ```
 
-### 5. Codex 使用方式
+## 使用示例
 
-显式调用：
+Claude Code：
+
+```text
+/dev-workflow 用 Agent-Skills + Superpowers 实现 OAuth 登录
+```
+
+Codex：
 
 ```text
 $dev-workflow 用 Agent-Skills + Superpowers 实现用户分页接口
 ```
 
-自然语言调用：
+自然语言：
 
 ```text
-使用 dev-workflow。先用 Agent-Skills 做 spec/plan 草案并让我确认，询问是否留档，再用 Superpowers TDD 执行，最后用 Agent-Skills review/security/ship 门禁。
+使用 dev-workflow 修复这个 flaky test；Agent-Skills 和 Superpowers 都已安装。
 ```
 
-如果 `$` 菜单里 skill 名带插件前缀，以 Codex 显示为准。
-
-## 显式调用后的推荐执行顺序
-
-### 普通功能
+## 仓库结构
 
 ```text
-Agent-Skills /spec
--> Agent-Skills /plan
--> Superpowers writing-plans
--> Superpowers TDD / subagent-driven execution
--> Agent-Skills /review + /security（并行，安全门禁仅在敏感改动时触发）
--> Agent-Skills /code-simplify
--> Superpowers verification-before-completion
--> handoff or Agent-Skills /ship
+skills/dev-workflow/SKILL.md   核心 skill
+evals/evals.json               行为回归用例
+docs/dev-workflow/             已归档的 spec / plan
+.claude-plugin/plugin.json     Claude Code 插件 manifest
+plugin.json                    通用插件元数据
+README.md                      用户说明
+CLAUDE.md                      仓库内 agent 维护规则
 ```
 
-### Bug 修复
-
-```text
-Superpowers systematic-debugging
--> regression test
--> Superpowers TDD fix
--> Agent-Skills debugging-and-error-recovery if needed
--> Agent-Skills /review
--> Superpowers verification-before-completion
-```
-
-### 安全敏感改动
-
-```text
-Agent-Skills /spec
--> Agent-Skills /plan
--> Superpowers TDD execution
--> Agent-Skills /review  ──┐
-                           ├──（并行执行）
--> Agent-Skills /security ─┘
--> Agent-Skills /code-simplify
--> Superpowers verification-before-completion
--> explicit approval before ship/deploy
-```
-
-## 验证这个仓库
+## 验证
 
 检查 JSON：
 
@@ -295,16 +203,16 @@ node -e "JSON.parse(require('fs').readFileSync('plugin.json','utf8')); JSON.pars
 node -e "const s=require('fs').readFileSync('skills/dev-workflow/SKILL.md','utf8'); if(!/^---\nname: dev-workflow\ndescription: /m.test(s)) throw new Error('frontmatter missing'); console.log('frontmatter ok')"
 ```
 
-检查 eval 数量和基本字段：
+检查 eval 基本字段：
 
 ```bash
-node -e "const e=JSON.parse(require('fs').readFileSync('evals/evals.json','utf8')); if(e.evals.length!==9) throw new Error('expected 9 evals'); for (const x of e.evals) { if(!x.id||!x.prompt||!x.expected_output||!Array.isArray(x.files)) throw new Error('bad eval '+(x.id||'<missing>')); } console.log('eval schema ok')"
+node -e "const e=JSON.parse(require('fs').readFileSync('evals/evals.json','utf8')); const ids=new Set(); for (const x of e.evals) { if(!x.id||!x.prompt||!x.expected_output||!Array.isArray(x.files)) throw new Error('bad eval '+(x.id||'<missing>')); if(ids.has(x.id)) throw new Error('duplicate eval '+x.id); ids.add(x.id); } console.log('eval schema ok')"
 ```
 
 检查显式触发规则：
 
 ```bash
-node -e "const s=require('fs').readFileSync('skills/dev-workflow/SKILL.md','utf8'); if(!s.includes('Explicit Invocation Only')) throw new Error('missing explicit gate'); for (const c of ['Use for '+'feature work','bug '+'fixes','refac'+'tors','security-'+'sensitive']) { if(s.includes(c)) throw new Error('broad trigger remains: '+c); } console.log('explicit trigger gate ok')"
+node -e "const s=require('fs').readFileSync('skills/dev-workflow/SKILL.md','utf8'); if(!s.includes('Explicit Invocation Only')) throw new Error('missing explicit gate'); if(!s.includes('Invocation Compliance Gate')) throw new Error('missing invocation compliance gate'); for (const c of ['Use for '+'feature work','bug '+'fixes','refac'+'tors','security-'+'sensitive']) { if(s.includes(c)) throw new Error('broad trigger remains: '+c); } console.log('explicit trigger gate ok')"
 ```
 
 检查 spec/plan 确认与留档规则：
@@ -313,14 +221,14 @@ node -e "const s=require('fs').readFileSync('skills/dev-workflow/SKILL.md','utf8
 node -e "const s=require('fs').readFileSync('skills/dev-workflow/SKILL.md','utf8'); for (const c of ['spec draft','archive','Do not archive spec or plan documents by default']) { if(!s.includes(c)) throw new Error('missing '+c); } console.log('archive gates ok')"
 ```
 
-## 官方参考
+## 参考
 
-- Superpowers：<https://github.com/obra/superpowers>
-- Superpowers marketplace：<https://github.com/obra/superpowers-marketplace>
-- Agent-Skills：<https://github.com/addyosmani/agent-skills>
-- Claude Code skills：<https://code.claude.com/docs/en/skills>
-- Claude Code plugins：<https://code.claude.com/docs/en/plugins>
-- Codex Agent Skills：<https://developers.openai.com/codex/skills>
+- Superpowers: <https://github.com/obra/superpowers>
+- Superpowers marketplace: <https://github.com/obra/superpowers-marketplace>
+- Agent-Skills: <https://github.com/addyosmani/agent-skills>
+- Claude Code skills: <https://code.claude.com/docs/en/skills>
+- Claude Code plugins: <https://code.claude.com/docs/en/plugins>
+- Codex Agent Skills: <https://developers.openai.com/codex/skills>
 
 ## License
 
