@@ -5,104 +5,78 @@ description: MUST use when the user explicitly asks to use, run, invoke, follow,
 
 # Dev Workflow
 
+Coordinates **Agent-Skills** (spec, plan, review, simplify, security, ship) and **Superpowers** (brainstorming, TDD, debugging, worktrees, verification) as one production workflow.
+
 ## Explicit Invocation Only
 
-Use this skill only when the user explicitly invokes one of these names as the workflow to use:
+Activate only on explicit invocation: `dev-workflow`, `$dev-workflow`, `/dev-workflow`, `dev-flow`, "use dev-workflow", "用 dev-workflow", or "按 dev-flow 处理". Once invoked, this skill is mandatory regardless of task type.
 
-- `dev-workflow`
-- `$dev-workflow`
-- `/dev-workflow`
-- `dev-flow`
-
-Explicit invocation includes phrasing such as "use dev-workflow", "run /dev-workflow", "follow dev-flow", "用 dev-workflow", or "按 dev-flow 处理". Once the user positively invokes one of these names, this skill is mandatory even if the underlying task looks like routine coding, defect repair, cleanup, restructuring, or sensitive work.
-
-Do not use this skill for ordinary coding requests, defect fixes, cleanup work, sensitive changes, or generic requests to use Agent-Skills and Superpowers unless the user explicitly names `dev-workflow` or `dev-flow` as the workflow to use.
-
-If the user does not explicitly name `dev-workflow` or `dev-flow`, use the appropriate individual skills instead of this orchestrator.
-
-Do not treat negative or informational mentions as invocation. Examples: "do not use dev-workflow", "why didn't dev-workflow run?", "explain dev-workflow", or "update the dev-workflow skill" should be handled with the appropriate individual skill unless the user also explicitly asks to run this workflow on the task.
+Do NOT activate on: "do not use dev-workflow", "explain dev-workflow", "update the dev-workflow skill", or ordinary coding requests without naming dev-workflow/dev-flow.
 
 ## Invocation Compliance Gate
 
-Before any task action, scan the latest user request for a positive invocation of `dev-workflow`, `$dev-workflow`, `/dev-workflow`, or `dev-flow`.
+On positive invocation:
 
-If positive invocation is present:
-
-1. Stop any ordinary coding, debugging, review, or documentation path.
-2. Do not substitute a generic checklist or individual skills-only workflow.
-3. Send the working update exactly in the Response Shape section, starting with `Using dev-workflow.`
-4. Enter Capability Gate and then Phase Tracking before editing files or running task-specific commands.
-5. Complete or explicitly skip every required phase before the final report.
-
-Failing to switch into this workflow after a positive invocation is a skill violation.
-
-## Purpose
-
-Coordinate **Agent-Skills** and **Superpowers** as one production development workflow.
-
-This skill is not a broad compatibility layer. Claude Code and Codex can both run it, but the workflow is intentionally built around two capability packs:
-
-- **Agent-Skills** sets the quality gates: spec, plan, review, simplify, security, performance, documentation, CI/CD, git workflow, and shipping.
-- **Superpowers** enforces execution discipline: skill selection, brainstorming, written plans, TDD, systematic debugging, worktree isolation, subagent-driven development, verification before completion, and branch finishing.
+1. Stop any ordinary coding, debugging, or review path.
+2. Send the working update: `Using dev-workflow.`
+3. Check Capability Gate, then create Phase Tracking tasks before editing files.
+4. Complete or explicitly skip every required phase before the final report.
+5. **Respect every Hard Gate.** Stop and wait for user confirmation. Never skip or bundle gates.
 
 ## Capability Gate
 
-At the start of every non-trivial task:
-
-1. Check whether Agent-Skills is available.
-2. Check whether Superpowers is available.
-3. If either pack is missing, stop and tell the user what is missing.
-4. Continue in degraded mode only if the user explicitly asks for it.
-
-Do not silently replace Agent-Skills or Superpowers with a generic checklist.
+Check that both Agent-Skills and Superpowers are available. If either is missing, stop and tell the user. Continue in degraded mode only if the user explicitly approves it.
 
 ## Phase Tracking (MANDATORY)
 
-**Create a TodoWrite task for every phase before starting work.** Each phase task MUST be marked `completed` (or explicitly `deleted` with a skip reason) before the final report. A phase with a `pending` status at final-report time is a workflow violation.
+Create a TodoWrite task for every phase. Each must be `completed` or `deleted` (with reason) before the final report.
 
-Use exactly these task subjects:
+| Task subject      | Skip condition                               |
+| ----------------- | -------------------------------------------- |
+| "Phase: Intake"   | Never                                        |
+| "Phase: Define"   | Trivial change (see Scope Rules)             |
+| "Phase: Plan"     | Trivial change                               |
+| "Phase: Isolate"  | Greenfield project with no existing branches |
+| "Phase: Build"    | Never                                        |
+| "Phase: Debug"    | No failures encountered                      |
+| "Phase: Review"   | Never                                        |
+| "Phase: Security" | No security-gate triggers                    |
+| "Phase: Simplify" | Never — mandatory after Review               |
+| "Phase: Verify"   | Never                                        |
+| "Phase: Ship"     | User has not requested merge/deploy/publish  |
 
-| Task subject      | When to skip                                  |
-| ----------------- | --------------------------------------------- |
-| "Phase: Intake"   | Never                                         |
-| "Phase: Define"   | Trivial change (see Scope Rules)              |
-| "Phase: Plan"     | Trivial change                                |
-| "Phase: Isolate"  | Greenfield project without existing branches  |
-| "Phase: Build"    | Never                                         |
-| "Phase: Debug"    | No failures encountered                       |
-| "Phase: Review"   | Never                                         |
-| "Phase: Security" | No security-gate triggers (see Security Gate) |
-| "Phase: Simplify" | Never — this is mandatory after Review        |
-| "Phase: Verify"   | Never                                         |
-| "Phase: Ship"     | User has not requested merge/deploy/publish   |
+## Hard Gates (MANDATORY STOP POINTS)
 
-**Simplify is the only phase that has no skip condition.** It always runs after Review.
+Four hard gates require explicit user confirmation before proceeding. **Skipping a gate is a workflow violation.** Output the draft, ask for confirmation, then STOP — the user's next message IS the gate response.
+
+| Gate | Phase  | Trigger                | Required Confirmation       |
+| ---- | ------ | ---------------------- | --------------------------- |
+| 1    | Define | Spec draft output      | User approves spec content  |
+| 2    | Define | Spec approved          | User chooses archive or not |
+| 3    | Plan   | Plan draft output      | User approves plan          |
+| 4    | Ship   | Before external action | User explicitly requests it |
+
+**Protocol:** (1) Output the complete draft. (2) Ask a clear confirmation question. (3) **STOP. Do NOT proceed**, do NOT write code, do NOT invoke the next skill. (4) Wait for user response. (5) Only then continue.
+
+**Common violations:** outputting spec and immediately coding; asking spec approval + archive in one message; skipping archive question entirely.
 
 ## Workflow
 
 ```text
-intake (capability check)
-  -> define
-  -> plan
-  -> isolate
-  -> build
-  -> [debug, if needed]
-  -> review ──┐
-              ├── simplify -> verify -> ship or handoff
-  -> security ─┘
+intake → define → plan → isolate → build → [debug] → review  ─┐
+                                                              ├── simplify → verify → ship
+                                                    security ─┘
 ```
 
-Review and security are independent checks; run them in parallel when both are triggered.
-
-Every arrow is a phase transition. Do not skip a phase without marking its task `deleted` with a reason. Do not enter Verify while Simplify is `pending`.
+Review and security run in parallel when both are triggered. Never skip a phase without marking its task `deleted` with a reason.
 
 ## Phase Ownership
 
 | Phase               | Primary                                                     | Secondary                                    | Exit gate                                                                                                                                                                    |
 | ------------------- | ----------------------------------------------------------- | -------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Intake              | Capability check (see Capability Gate)                      | —                                            | Agent-Skills and Superpowers both confirmed, or degraded mode explicitly approved                                                                                            |
-| Define              | Agent-Skills `spec-driven-development` or `/spec`           | Superpowers `brainstorming`                  | User approves the spec content; archive choice is recorded                                                                                                                    |
-| Plan                | Agent-Skills `planning-and-task-breakdown` or `/plan`       | Superpowers `writing-plans`                  | User approves the task plan; plan is archived only if archive was chosen after spec approval                                                                                  |
+| Define              | Agent-Skills `spec-driven-development` or `/spec`           | Superpowers `brainstorming`                  | User approves the spec content; archive choice is recorded                                                                                                                   |
+| Plan                | Agent-Skills `planning-and-task-breakdown` or `/plan`       | Superpowers `writing-plans`                  | User approves the task plan; plan is archived only if archive was chosen after spec approval                                                                                 |
 | Isolate             | Superpowers `using-git-worktrees`                           | Agent-Skills `git-workflow-and-versioning`   | Work area is safe                                                                                                                                                            |
 | Build               | Superpowers `test-driven-development`                       | Agent-Skills `incremental-implementation`    | Focused tests pass                                                                                                                                                           |
 | Debug (conditional) | Superpowers `systematic-debugging`                          | Agent-Skills `debugging-and-error-recovery`  | Root cause fixed, regression test added                                                                                                                                      |
@@ -114,236 +88,118 @@ Every arrow is a phase transition. Do not skip a phase without marking its task 
 
 ## Scope Rules
 
-| Change type                                                         | Workflow                                                                                                           |
-| ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| Typo, formatting-only docs, metadata copy edit                      | Direct edit plus Superpowers verification                                                                          |
-| Single-file behavior change                                         | Short Agent-Skills spec note, Superpowers TDD, focused Agent-Skills review                                         |
-| Multi-file feature or refactor                                      | Full Agent-Skills spec and plan, Superpowers TDD execution, Agent-Skills review/simplify, Superpowers verification |
-| Bug fix                                                             | Superpowers systematic debugging, regression test, TDD fix, Agent-Skills review                                    |
-| Auth, payment, PII, secrets, permissions, public API, data deletion | Full workflow plus Agent-Skills security-and-hardening                                                             |
-| Release, deployment, or production rollout                          | Agent-Skills shipping-and-launch plus Superpowers branch completion                                                |
+| Change type                                                    | Workflow                                               |
+| -------------------------------------------------------------- | ------------------------------------------------------ |
+| Typo, formatting-only docs, metadata copy                      | Direct edit + verification                             |
+| Single-file behavior change                                    | Short spec note, TDD, focused review                   |
+| Multi-file feature or refactor                                 | Full spec + plan, TDD, review + simplify, verification |
+| Bug fix                                                        | Systematic debugging, regression test, TDD fix, review |
+| Auth, payment, PII, secrets, permissions, public API, deletion | Full workflow + security-and-hardening                 |
+| Release, deployment, rollout                                   | Ship + branch completion                               |
 
 ## Define And Plan
 
-For non-trivial work:
+Each phase has hard gates. Stop at each gate and wait. See [Hard Gates](#hard-gates-mandatory-stop-points).
 
-1. Use Agent-Skills `/spec` or `spec-driven-development` to define the work.
-2. Use Superpowers `brainstorming` to resolve ambiguity.
-3. Output the spec draft in the conversation and stop for user confirmation.
-4. After the user approves the spec content, ask whether the user wants to archive the spec/plan documents.
-5. If the user chooses archive, write the spec to `docs/<feature>/spec.md`. If the user chooses not to archive, do not write the spec, and do not write the later plan for this workflow run.
-6. Use Agent-Skills `/plan` or `planning-and-task-breakdown` for lifecycle-level decomposition.
-7. Use Superpowers `writing-plans` to produce exact implementation steps, file paths, commands, and expected outputs.
-8. Output the plan draft in the conversation and stop for user confirmation.
-9. If the user chose archive earlier, write the approved plan to `docs/<feature>/plan.md`. If the user chose not to archive, keep the plan in the conversation only.
+### Define
 
-Do not write implementation code before spec and plan approval unless the task is explicitly classified as trivial.
+1. Invoke `/spec` or `spec-driven-development`; use `brainstorming` for ambiguity.
+2. Output the complete spec draft.
 
-Spec approval authorizes only the archive-choice question and plan creation. Plan approval authorizes local execution only (see Approval Boundaries).
+**🔴 GATE 1 — Spec Approval:**
 
-### Spec And Plan Document Rules
+- Ask: "Does this spec look correct? Shall I proceed to the plan phase?"
+- **STOP. Do NOT proceed to plan. Do NOT ask about archiving. Do NOT write code.**
+- Wait for explicit user confirmation.
 
-Do not archive spec or plan documents by default. Every spec or plan draft is first presented in the conversation for user confirmation. After the spec is approved, ask whether the user wants the workflow artifacts archived.
+**🔴 GATE 2 — Archive Decision:**
 
-If the user chooses not to archive:
+- Ask: "Archive this spec to `docs/<feature>/spec.md`? The plan will also be archived if you choose yes."
+- **STOP until the user answers.**
+- Archive: write `docs/<feature>/spec.md`. Don't archive: skip file, note the choice.
 
-1. Do not create or update `docs/<feature>/spec.md`.
-2. Do not create or update `docs/<feature>/plan.md`.
-3. Continue the workflow using the confirmed conversation drafts.
+### Plan
 
-If the user chooses archive, every spec or plan document created by Agent-Skills, Superpowers, or dev-workflow MUST follow these rules:
+1. Invoke `/plan` or `planning-and-task-breakdown`; use `writing-plans`.
+2. Output the complete plan draft.
 
-1. Write the document body in Chinese. Technical identifiers, file paths, command names, API names, and quoted source text may remain in their original language.
-2. Store documents under `docs/<feature>/`, where `<feature>` is a short kebab-case feature or task name chosen from the user's request.
-3. Use exactly `docs/<feature>/spec.md` for the confirmed spec.
-4. Use exactly `docs/<feature>/plan.md` for the confirmed implementation plan.
-5. If an upstream skill suggests another default path, override it with this repository rule.
-6. If a document already exists for that feature, update the existing file immutably by writing the new complete version instead of creating dated duplicates.
+**🔴 GATE 3 — Plan Approval:**
+
+- Ask: "Does this plan look correct? Shall I proceed with implementation?"
+- **STOP. Do NOT proceed to Build. Do NOT write code.**
+- Wait for explicit user confirmation.
+
+1. After confirmation: archive plan to `docs/<feature>/plan.md` only if archive was chosen at Gate 2. Then proceed to Build.
+
+### Document Rules (when archiving)
+
+- Body in Chinese; technical identifiers, paths, and quoted source text may remain in original language.
+- Store under `docs/<feature>/` (kebab-case).
+- `spec.md` for the confirmed spec, `plan.md` for the confirmed plan.
+- If a document already exists, overwrite it immutably — no dated duplicates.
+
+**CRITICAL:** Never output a spec/plan and immediately start implementing. Spec approval authorizes only the archive question and plan. Plan approval authorizes only local execution (see Approval Boundaries).
 
 ## Execute
 
-Use Superpowers TDD as the primary implementation discipline:
+TDD as primary discipline: write failing test → confirm failure → implement → pass → refactor.
 
-1. Write the failing test or regression case.
-2. Run it and confirm the expected failure.
-3. Implement the smallest change that passes.
-4. Run the focused test.
-5. Refactor only while tests stay green.
+Use `incremental-implementation` for vertical slices and feature flags. Use `subagent-driven-development` for independent tasks with disjoint write scopes.
 
-Use Agent-Skills `incremental-implementation` for thin vertical slices, feature flags, rollback-friendly changes, and production constraints.
+### After Subagent-Driven Development
 
-When the plan contains independent tasks with disjoint write scopes, use Superpowers `subagent-driven-development` if the runtime allows subagents. Otherwise execute inline task by task.
+Subagent completion ≠ workflow completion. dev-workflow MUST still run Review, Simplify, and Verify. Aggregate all per-task findings into one list for Simplify.
 
-### IMPORTANT: After Subagent-Driven Development
+## Debug (conditional)
 
-Subagent-driven development considers itself done when all plan tasks complete. **dev-workflow does NOT end there.** When subagent-driven-development finishes:
+Triggered on failures. Use `systematic-debugging`: reproduce → locate root cause → add regression test → fix. Use `debugging-and-error-recovery` for build/test recovery.
 
-1. The Build phase is complete (all tasks done, tests pass).
-2. **dev-workflow MUST now run Review, Simplify, and Verify.**
-3. Subagent-driven-development's per-task reviews are partial input to Review — they do not replace the dev-workflow Review phase.
-4. Aggregate all per-task review findings (spec compliance issues, code quality suggestions) into a single list. This list becomes the input for Simplify.
+## Review
 
-## Debug
+After Build passes: aggregate all findings, fix CRITICAL/HIGH immediately, record IMPORTANT/MINOR for Simplify. Run `security-and-hardening` in parallel if security gate triggers.
 
-This phase triggers only when builds fail, tests break, or unexpected behavior appears. For clean-path feature work, skip it.
+## Simplify (MANDATORY)
 
-For bugs, build failures, and unexpected behavior:
+Always follows Review. For every finding: **fix it**, **defer it** with `// TODO(simplify):` comment, or **reject it** with explanation. Re-run tests afterward.
 
-1. Use Superpowers `systematic-debugging` first.
-2. Reproduce and locate root cause before any fix.
-3. Add a regression test before implementation.
-4. Use Agent-Skills `debugging-and-error-recovery` when build/test recovery or fallback design matters.
-
-## Review (Phase 1 of 2)
-
-After all Build tasks pass:
-
-1. **Collect all per-task review findings.** If subagent-driven-development ran spec compliance and code quality reviews per task, aggregate every finding — CRITICAL, HIGH, IMPORTANT, MINOR — into one list. These are NOT resolved just because the subagent reviews said "approved." They are the raw material for the next phase.
-2. Fix CRITICAL and HIGH findings now. Do not proceed to Simplify with open CRITICAL or HIGH issues.
-3. Record IMPORTANT and MINOR findings. These feed directly into Simplify — do not drop them.
-4. If security gate triggers (see Security Gate), run Agent-Skills `security-and-hardening` in parallel. Security findings that block shipping must be fixed before proceeding.
-5. Mark the "Phase: Review" task `completed` only when: CRITICAL/HIGH findings are fixed, and remaining findings are documented for Simplify.
-
-## Simplify (Phase 2 of 2 — MANDATORY)
-
-**Simplify always follows Review. There is no skip condition.** Even if Review found zero issues, run a simplification pass over the new and modified code.
-
-1. Read the aggregated review findings (IMPORTANT and MINOR issues from Review).
-2. Run Agent-Skills `code-simplification` or `/code-simplify` on the changed files.
-3. Address every finding:
-   - **Fix it** — remove duplication, extract helpers, delete dead code, split long functions, improve names.
-   - **Defer it** — add a `// TODO(simplify): ...` comment with a reason why now isn't the right time.
-   - **Reject it** — only if the finding is factually wrong or the simplification would change behavior. Explain the rejection in the final report.
-4. Re-run tests after simplification. All tests must still pass.
-5. Mark the "Phase: Simplify" task `completed`.
-
-**Simplify exit checklist (every item must be true):**
-
-- [ ] Every IMPORTANT review finding has been addressed (fixed, deferred with TODO, or rejected with reason)
-- [ ] Every MINOR review finding has been addressed or explicitly deferred
-- [ ] No function over 50 lines added in this change (unless previously over 50 and explicitly deferred)
-- [ ] No dead code or unused variables remain
-- [ ] No duplicated logic blocks (same pattern appearing 2+ times) remain
-- [ ] All tests pass after simplification
+**Exit checklist:** all IMPORTANT findings addressed; no function >50 lines added; no dead code; no duplicated logic; all tests pass.
 
 ## Security Gate
 
-Run Agent-Skills `security-and-hardening` when the change touches:
-
-- Authentication, authorization, sessions, OAuth, password reset, or tokens.
-- Payment, billing, webhooks, or financial data.
-- PII, secrets, credentials, or user-generated content.
-- Public API endpoints, database queries, file uploads, or data deletion.
-- Dependency, CI, deployment, or permission changes.
-
-High or critical security findings block shipping until fixed or explicitly accepted by the user with context.
+Trigger: auth, payment, PII, secrets, public API, DB queries, file uploads, data deletion, CI/deploy changes. High/critical findings block shipping.
 
 ## Verification
 
-Before any completion claim:
-
-1. Use Superpowers `verification-before-completion`.
-2. Run fresh focused tests.
-3. Run full tests, lint, typecheck, build, format, audit, or browser checks when relevant and available.
-4. Read the output and report exact results.
-
-No verification evidence means no completion claim.
+Before claiming completion: run fresh tests, full tests, lint, typecheck, build. Report exact results. No evidence = no completion claim.
 
 ## Completion Gate
 
-**Before producing the final report**, check every phase task:
-
-```
-TodoWrite task status must be:
-  Phase: Intake   — completed
-  Phase: Define   — completed or deleted (with skip reason)
-  Phase: Plan     — completed or deleted (with skip reason)
-  Phase: Isolate  — completed or deleted (with skip reason)
-  Phase: Build    — completed
-  Phase: Debug    — completed or deleted (with skip reason)
-  Phase: Review   — completed
-  Phase: Security — completed or deleted (with skip reason)
-  Phase: Simplify — completed (NEVER deleted)
-  Phase: Verify   — completed
-  Phase: Ship     — completed or deleted (with skip reason)
-```
-
-If any phase task is `pending`, stop. Do not produce the final report. Complete the pending phase first.
-
-If a phase was genuinely not applicable (e.g., greenfield project with no worktree), mark it `deleted` with a short skip reason. But Simplify can never be deleted — it is always applicable.
+Before the final report, every phase task must be `completed` or `deleted` (with reason). If any phase is `pending`, finish it first. Simplify can never be deleted.
 
 ## Approval Boundaries
 
-Plan approval authorizes local execution only:
-
-- local edits
-- tests
-- lint/typecheck/build
-- review
-- simplification
-- local verification
-
-Stop for explicit user approval before:
-
-- creating commits that include unrelated or untracked user work
-- pushing branches
-- opening or updating PRs
-- merging
-- publishing packages or plugins
-- deploying
-- changing credentials or secrets
-- modifying third-party resources
-- destructive data changes
-
-## Runtime Notes
-
-### Claude Code
-
-Prefer native slash commands and plugin skills:
-
-- Superpowers: `superpowers@claude-plugins-official` or `superpowers@superpowers-marketplace`
-- Agent-Skills: `agent-skills@addy-agent-skills`
-- dev-workflow: standalone skill or local plugin
-
-### Codex
-
-Prefer installed Codex skills and plugins:
-
-- Superpowers through the Codex plugin marketplace.
-- Agent-Skills copied or installed into `.agents/skills` or `~/.agents/skills`.
-- dev-workflow installed into `.agents/skills` or `~/.agents/skills`.
-
-If the `$` skill selector shows prefixed names, use the names Codex exposes.
+Plan approval authorizes: local edits, tests, lint/typecheck/build, review, simplification, local verification.
+Stop for explicit user approval before: commits (if including unrelated user work), push, PR, merge, publish, deploy, credential changes, destructive data changes.
 
 ## Response Shape
 
-Working update:
+**Working update:**
 
-```text
-Using dev-workflow. Agent-Skills will handle spec/plan/review/security gates; Superpowers will handle planning discipline, TDD, debugging, and verification.
-```
+> Using dev-workflow.
 
-Missing capability:
+**Missing capability:**
 
-```text
-Agent-Skills is available, but Superpowers is not. Install Superpowers first, or explicitly confirm degraded mode.
-```
+> Agent-Skills is available, but Superpowers is not. Install Superpowers or confirm degraded mode.
 
-Phase progress (use sparingly — when switching between major phases):
+**Phase progress** (at major transitions only):
 
-```text
-Phase status:
-  ✅ Intake  ✅ Define  ✅ Plan  ✅ Build
-  🔄 Review  ⏳ Simplify  ⏳ Verify  ⬚ Ship
-```
+> ✅ Intake ✅ Define ✅ Plan ✅ Build 🔄 Review ⏳ Simplify
 
-Final report (only after Completion Gate passes):
+**Final report** (after Completion Gate):
 
-```text
-Changed: <files>
-Agent-Skills gates: <spec/plan/review/simplify/security/ship status — each with resolution>
-Superpowers gates: <TDD/debug/worktree/verification status — each with resolution>
-Simplify: <summary of findings addressed, deferred, or rejected>
-Verified: <commands and results>
-Not done: <commit/push/PR/deploy if not performed>
-```
+> Changed: \<files\>
+> Agent-Skills gates: <spec/plan/review/simplify/security/ship status — each with resolution>
+> Superpowers gates: <TDD/debug/worktree/verification status — each with resolution>
+> Simplify: findings addressed, deferred, or rejected
+> Verified: \<commands and results\>
+> Not done: \<commit/push/PR/deploy if skipped\>
