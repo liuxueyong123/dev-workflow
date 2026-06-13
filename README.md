@@ -48,16 +48,19 @@ Intake (能力可用性检查)
 ## 关键规则
 
 1. **Agent-Skills 和 Superpowers 是主依赖**：如果其中一个缺失，不要静默降级成普通 checklist；先提示安装，或让用户明确同意降级执行。
-2. **Spec 和 Plan 是手动确认点**：非平凡功能必须先在对话中输出 spec 和 plan 草案，用户批准内容后再进入下一阶段。
-3. **留档是单独选择**：spec 内容确认后必须询问用户是否需要留档；只有用户选择留档时才写入 `docs/<feature>/spec.md`，并且后续 plan 才会写入 `docs/<feature>/plan.md`。
-4. **计划批准只覆盖本地执行**：本地编辑、测试、review、simplify、verify 可以继续推进。
-5. **外部动作必须再次确认**：push、merge、PR、发布、部署、凭据修改、第三方资源修改、破坏性数据操作都必须显式审批。
-6. **TDD 优先采用 Superpowers**：Agent-Skills 也有测试能力，但红绿重构纪律以 Superpowers 为主。
-7. **质量门禁优先采用 Agent-Skills**：代码审查、简化、安全、发布门禁以 Agent-Skills 为主。
-8. **完成声明必须有验证证据**：最终报告前必须运行 fresh verification，并说明命令和结果。
-9. **选择留档时使用中文和固定路径**：留档文档使用 `docs/<feature>/spec.md` 和 `docs/<feature>/plan.md`；`<feature>` 使用简短 kebab-case 名称。技术标识、路径、命令、API 名称和引用文本可以保留原语言。
+2. **只允许显式触发**：只有用户明确点名 `dev-workflow`、`$dev-workflow`、`/dev-workflow` 或 `dev-flow` 时才使用本 skill；普通功能、Bug、重构、安全敏感改动或泛泛提到 Agent-Skills + Superpowers 都不能自动触发。
+3. **Spec 和 Plan 是手动确认点**：非平凡功能必须先在对话中输出 spec 和 plan 草案，用户批准内容后再进入下一阶段。
+4. **留档是单独选择**：spec 内容确认后必须询问用户是否需要留档；只有用户选择留档时才写入 `docs/<feature>/spec.md`，并且后续 plan 才会写入 `docs/<feature>/plan.md`。
+5. **计划批准只覆盖本地执行**：本地编辑、测试、review、simplify、verify 可以继续推进。
+6. **外部动作必须再次确认**：push、merge、PR、发布、部署、凭据修改、第三方资源修改、破坏性数据操作都必须显式审批。
+7. **TDD 优先采用 Superpowers**：Agent-Skills 也有测试能力，但红绿重构纪律以 Superpowers 为主。
+8. **质量门禁优先采用 Agent-Skills**：代码审查、简化、安全、发布门禁以 Agent-Skills 为主。
+9. **完成声明必须有验证证据**：最终报告前必须运行 fresh verification，并说明命令和结果。
+10. **选择留档时使用中文和固定路径**：留档文档使用 `docs/<feature>/spec.md` 和 `docs/<feature>/plan.md`；`<feature>` 使用简短 kebab-case 名称。技术标识、路径、命令、API 名称和引用文本可以保留原语言。
 
-## 适用场景
+## 显式调用后的执行建议
+
+以下建议只适用于用户已经明确点名 `dev-workflow`、`$dev-workflow`、`/dev-workflow` 或 `dev-flow` 的场景。
 
 | 任务 | 推荐流程 |
 |------|----------|
@@ -211,7 +214,8 @@ cp -R /tmp/agent-skills/skills/* .agents/skills/
 ```markdown
 ## Development Workflow
 
-- 功能开发、Bug 修复、重构和安全敏感改动优先使用 `$dev-workflow`。
+- 只有用户明确点名 `dev-workflow`、`$dev-workflow`、`/dev-workflow` 或 `dev-flow` 时才使用本 skill。
+- 普通功能开发、Bug 修复、重构和安全敏感改动不能自动触发 `$dev-workflow`。
 - `$dev-workflow` 必须组合 Agent-Skills 和 Superpowers，而不是退化成普通 checklist。
 - Agent-Skills 负责 spec、plan、review、code-simplify、security、ship 门禁。
 - Superpowers 负责 brainstorming、writing-plans、TDD、systematic-debugging、worktree、verification。
@@ -237,7 +241,7 @@ $dev-workflow 用 Agent-Skills + Superpowers 实现用户分页接口
 
 如果 `$` 菜单里 skill 名带插件前缀，以 Codex 显示为准。
 
-## 推荐执行顺序
+## 显式调用后的推荐执行顺序
 
 ### 普通功能
 
@@ -294,7 +298,13 @@ node -e "const s=require('fs').readFileSync('skills/dev-workflow/SKILL.md','utf8
 检查 eval 数量和基本字段：
 
 ```bash
-node -e "const e=JSON.parse(require('fs').readFileSync('evals/evals.json','utf8')); if(e.evals.length!==7) throw new Error('expected 7 evals'); for (const x of e.evals) { if(!x.id||!x.prompt||!x.expected_output||!Array.isArray(x.files)) throw new Error('bad eval '+(x.id||'<missing>')); } console.log('eval schema ok')"
+node -e "const e=JSON.parse(require('fs').readFileSync('evals/evals.json','utf8')); if(e.evals.length!==9) throw new Error('expected 9 evals'); for (const x of e.evals) { if(!x.id||!x.prompt||!x.expected_output||!Array.isArray(x.files)) throw new Error('bad eval '+(x.id||'<missing>')); } console.log('eval schema ok')"
+```
+
+检查显式触发规则：
+
+```bash
+node -e "const s=require('fs').readFileSync('skills/dev-workflow/SKILL.md','utf8'); if(!s.includes('Explicit Invocation Only')) throw new Error('missing explicit gate'); for (const c of ['Use for '+'feature work','bug '+'fixes','refac'+'tors','security-'+'sensitive']) { if(s.includes(c)) throw new Error('broad trigger remains: '+c); } console.log('explicit trigger gate ok')"
 ```
 
 检查 spec/plan 确认与留档规则：

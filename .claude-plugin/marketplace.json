@@ -12,8 +12,8 @@
         "source": "github",
         "repo": "liuxueyong123/dev-workflow"
       },
-      "description": "A development workflow skill that composes Agent-Skills quality gates with Superpowers execution discipline for Claude Code and Codex.",
-      "version": "1.1.0",
+      "description": "An explicit-invocation development workflow skill for Claude Code and Codex that composes Agent-Skills quality gates with Superpowers execution discipline.",
+      "version": "1.2.0",
       "author": {
         "name": "liuxueyong123",
         "url": "https://github.com/liuxueyong123"

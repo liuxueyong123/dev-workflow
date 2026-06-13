@@ -1,9 +1,22 @@
 ---
 name: dev-workflow
-description: Use for feature work, bug fixes, refactors, security-sensitive changes, or any request to combine Agent-Skills and Superpowers into one disciplined development workflow. Agent-Skills supplies spec, plan, review, simplification, security, and shipping gates. Superpowers supplies brainstorming, writing-plans, TDD, systematic debugging, worktree isolation, subagent-driven development, verification, and branch completion. Do not silently degrade to a generic checklist when either pack is missing.
+description: Use only when the user explicitly invokes dev-workflow, $dev-workflow, /dev-workflow, or dev-flow by name. Do not use for ordinary coding requests, defect fixes, cleanup work, sensitive changes, or generic requests to combine Agent-Skills and Superpowers unless dev-workflow/dev-flow is explicitly named.
 ---
 
 # Dev Workflow
+
+## Explicit Invocation Only
+
+Use this skill only when the user explicitly invokes one of these names:
+
+- `dev-workflow`
+- `$dev-workflow`
+- `/dev-workflow`
+- `dev-flow`
+
+Do not use this skill for ordinary coding requests, defect fixes, cleanup work, sensitive changes, or generic requests to use Agent-Skills and Superpowers unless the user explicitly names `dev-workflow` or `dev-flow`.
+
+If the user does not explicitly name `dev-workflow` or `dev-flow`, use the appropriate individual skills instead of this orchestrator.
 
 ## Purpose
 

@@ -2,6 +2,18 @@
   "skill_name": "dev-workflow",
   "evals": [
     {
+      "id": "explicit-invocation-required",
+      "prompt": "Add a paginated users endpoint with tests and code review. Do not mention any workflow skill by name.",
+      "expected_output": "Does not use dev-workflow. Uses appropriate individual skills or ordinary project workflow because the user did not explicitly invoke dev-workflow, $dev-workflow, /dev-workflow, or dev-flow.",
+      "files": []
+    },
+    {
+      "id": "dev-flow-alias",
+      "prompt": "Use dev-flow to implement a small refactor with Agent-Skills and Superpowers installed.",
+      "expected_output": "Treats dev-flow as an explicit invocation of dev-workflow, then applies the dev-workflow gates for spec, plan, archive choice, implementation, review, simplification, and verification.",
+      "files": []
+    },
+    {
       "id": "claude-code-agent-skills-superpowers",
       "prompt": "In Claude Code, use dev-workflow to build OAuth login with Agent-Skills and Superpowers installed.",
       "expected_output": "Uses Agent-Skills for spec, plan, review, code simplification, security, and shipping gates; uses Superpowers for brainstorming, writing-plans, TDD, debugging, worktree or task isolation, and verification before completion. Presents the spec and plan drafts in the conversation for confirmation, asks whether to archive after spec approval, and archives Chinese documents under docs/<feature>/spec.md and docs/<feature>/plan.md only if the user chooses archive.",
@@ -20,7 +32,7 @@
       "files": []
     },
     {
-      "id": "security-sensitive-change",
+      "id": "security-change",
       "prompt": "Use dev-workflow to add password reset tokens and email delivery to the authentication flow.",
       "expected_output": "Runs Agent-Skills spec and plan gates, confirms both drafts with the user before implementation, asks whether to archive after spec approval, uses Superpowers TDD execution only after plan approval, then requires Agent-Skills security-and-hardening before verification and handoff.",
       "files": []

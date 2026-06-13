@@ -18,6 +18,7 @@ README.md                      - User-facing documentation
 
 - Keep workflow logic in `skills/dev-workflow/SKILL.md`.
 - Treat Agent-Skills and Superpowers as the primary capability dependencies.
+- Keep dev-workflow explicit-invocation only; do not broaden the skill description or docs to auto-trigger for ordinary coding requests, defect fixes, cleanup work, or sensitive changes.
 - Do not silently downgrade missing Agent-Skills or Superpowers into a generic checklist; ask for install or explicit degraded-mode approval.
 - Treat slash commands as optional wrappers for this repo, but document Agent-Skills lifecycle commands as expected upstream capabilities.
 - Present spec/plan drafts in the conversation first; after spec approval, ask whether the user wants to archive workflow artifacts.
@@ -32,6 +33,7 @@ Run these checks after editing:
 
 ```bash
 node -e "JSON.parse(require('fs').readFileSync('plugin.json','utf8')); JSON.parse(require('fs').readFileSync('evals/evals.json','utf8')); console.log('json ok')"
+node -e "const s=require('fs').readFileSync('skills/dev-workflow/SKILL.md','utf8'); if(!s.includes('Explicit Invocation Only')) throw new Error('missing explicit gate'); for (const c of ['Use for '+'feature work','bug '+'fixes','refac'+'tors','security-'+'sensitive']) { if(s.includes(c)) throw new Error('broad trigger remains: '+c); } console.log('explicit trigger gate ok')"
 node -e "const s=require('fs').readFileSync('skills/dev-workflow/SKILL.md','utf8'); for (const c of ['spec draft','archive','Do not archive spec or plan documents by default']) { if(!s.includes(c)) throw new Error('missing '+c); } console.log('archive gates ok')"
 ```
 
