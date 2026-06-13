@@ -33,7 +33,25 @@ Verify    fresh verification，无证据不报告完成
 Ship      🔴 Gate 4 用户明确批准后 push / PR / merge / deploy
 ```
 
-## 硬门禁（v1.4.0）
+## 阶段追踪
+
+每个阶段必须创建 TodoWrite 任务，工作流结束前全部标记为 `completed` 或给出跳过理由。以下是各阶段的跳过条件：
+
+| 阶段 | 何时可跳过 |
+|------|-----------|
+| Intake | 不可跳过 |
+| Define | 仅限拼写/纯格式/元数据文本调整 |
+| Plan | 仅限拼写/纯格式/元数据文本调整 |
+| Isolate | greenfield 项目无已有分支时 |
+| Build | 不可跳过 |
+| Debug | 未遇到失败时 |
+| Review | 不可跳过 |
+| Security | 无安全触发时 |
+| Simplify | **不可跳过** — Review 后强制执行 |
+| Verify | 不可跳过 |
+| Ship | 用户未要求 merge/deploy/publish 时 |
+
+## 硬门禁
 
 四个 Hard Gate 是工作流中最关键的机制——每个 Gate 要求输出草稿后 STOP，等待用户明确确认才能继续。跳过或合并任何 Gate 属于工作流违规。
 
@@ -61,21 +79,21 @@ Ship      🔴 Gate 4 用户明确批准后 push / PR / merge / deploy
 
 ## Agent-Skills 与 Superpowers 分工
 
-每个阶段的退出条件由对应的 skill 保证，Primary 负责主要产出，Secondary 负责辅助支撑。
+每个阶段的退出条件由对应的 skill 保证。Primary 负责主要产出，Secondary 负责辅助支撑——Primary 可能是 Agent-Skills 也可能是 Superpowers。
 
-| 阶段     | Agent-Skills（Primary）              | Superpowers（Secondary）         | 退出条件                                        |
-| -------- | ------------------------------------ | -------------------------------- | ----------------------------------------------- |
-| Intake   | 能力检查                             | —                                | 两套 skill 均确认可用，或用户明确同意降级        |
-| Define   | `spec-driven-development` / `/spec`  | `brainstorming`                  | Gate 1 确认 spec + Gate 2 确认留档               |
-| Plan     | `planning-and-task-breakdown` / `/plan` | `writing-plans`               | Gate 3 确认 plan                                 |
-| Isolate  | `git-workflow-and-versioning`        | `using-git-worktrees`            | 工作区安全                                      |
-| Build    | `incremental-implementation`         | `test-driven-development` / `subagent-driven-development` | 按已确认 spec/plan 实现；TDD 通过                |
-| Debug    | `debugging-and-error-recovery`       | `systematic-debugging`           | 根因修复 + 回归测试                              |
-| Review   | `code-review-and-quality` / `/review` | `requesting-code-review`        | CRITICAL/HIGH 修复；其余捕获给 Simplify          |
-| Security | `security-and-hardening`             | 项目 audit 命令                  | 安全发现已处理或接受                             |
-| Simplify | `code-simplification` / `/code-simplify` | `verification-before-completion` | 全部发现已处理（修复/推迟/拒绝）；测试通过       |
-| Verify   | `/test`（可用时）                    | `verification-before-completion`  | fresh evidence 已收集                            |
-| Ship     | `shipping-and-launch` / `/ship`      | `finishing-a-development-branch`  | 用户批准的外部操作                               |
+| 阶段     | Primary                                                    | Secondary                        | 退出条件                                        |
+| -------- | ---------------------------------------------------------- | -------------------------------- | ----------------------------------------------- |
+| Intake   | 能力检查（Agent-Skills）                                    | —                                | 两套 skill 均确认可用，或用户明确同意降级        |
+| Define   | `spec-driven-development` / `/spec`（Agent-Skills）         | `brainstorming`（Superpowers）    | Gate 1 确认 spec + Gate 2 确认留档               |
+| Plan     | `planning-and-task-breakdown` / `/plan`（Agent-Skills）     | `writing-plans`（Superpowers）    | Gate 3 确认 plan                                 |
+| Isolate  | `using-git-worktrees`（Superpowers）                        | `git-workflow-and-versioning`（Agent-Skills） | 工作区安全                           |
+| Build    | `test-driven-development` / `subagent-driven-development`（Superpowers） | `incremental-implementation`（Agent-Skills） | 按已确认 spec/plan 实现；TDD 通过 |
+| Debug    | `systematic-debugging`（Superpowers）                       | `debugging-and-error-recovery`（Agent-Skills） | 根因修复 + 回归测试                   |
+| Review   | `code-review-and-quality` / `/review`（Agent-Skills）       | `requesting-code-review`（Superpowers） | CRITICAL/HIGH 修复；其余捕获给 Simplify   |
+| Security | `security-and-hardening`（Agent-Skills）                    | 项目 audit 命令                   | 安全发现已处理或接受                             |
+| Simplify | `code-simplification` / `/code-simplify`（Agent-Skills）    | `verification-before-completion`（Superpowers） | 全部发现已处理（修复/推迟/拒绝）；测试通过 |
+| Verify   | `verification-before-completion`（Superpowers）             | `/test`（Agent-Skills）           | fresh evidence 已收集                            |
+| Ship     | `shipping-and-launch` / `/ship`（Agent-Skills）             | `finishing-a-development-branch`（Superpowers） | 用户批准的外部操作                    |
 
 ## 触发规则
 
@@ -107,6 +125,16 @@ Use dev-workflow to fix a flaky test
 为什么 dev-workflow 没运行
 ```
 
+## 调用合规门禁
+
+正向调用被识别后，必须执行以下步骤，不可跳过：
+
+1. 停住任何普通编码、调试或 review 路径
+2. 输出工作更新：`Using dev-workflow.`
+3. 检查能力门禁（Agent-Skills 和 Superpowers 是否可用），然后创建阶段追踪任务，**之后才能编辑文件**
+4. 完成或显式跳过每个必要阶段，最终报告前全部收束
+5. **遵守每个 Hard Gate** — 每个 Gate 必须 STOP 等待用户确认，绝不跳过或合并
+
 ## 适用范围（Scope Rules）
 
 不同的改动类型对应不同的工作流深度，非平凡任务不跳过 Define 和 Plan。
@@ -124,11 +152,14 @@ Use dev-workflow to fix a flaky test
 
 - **无降级**：Agent-Skills 或 Superpowers 缺失时停住，告知用户缺少什么。仅在用户明确要求时降级执行。
 - **确认先行**：非平凡任务不跳过 Define 和 Plan；spec 和 plan 先在对话中确认再继续。
-- **留档可选**：spec 确认后单独询问留档，不默认写入文件。用户选留档才写 `docs/<feature>/spec.md` 和 `docs/<feature>/plan.md`。
+- **留档可选**：spec 确认后单独询问留档，不默认写入文件。用户选留档才写 `docs/<feature>/spec.md` 和 `docs/<feature>/plan.md`。若 `docs/<feature>/` 已存在，自动后缀 `-2`、`-3`，绝不静默覆盖已有目录。
 - **中文正文**：留档文档正文使用中文。技术标识、文件路径、命令名、API 名和引用原文可保留原语言。
-- **Review/Simplify 必跑**：即使是拼写、纯格式文档或元数据文本调整，也必须跑 Review 和 Simplify。所有 review 发现必须处理（修复、推迟 TODO 或拒绝并说明理由）。
+- **Review/Simplify 必跑**：即使是拼写、纯格式文档或元数据文本调整，也必须跑 Review 和 Simplify。Simplify 检查清单：所有 IMPORTANT 发现已处理；无超过 50 行的函数新增；无死代码；无重复逻辑；全部测试通过。
+- **安全门禁触发**：认证、支付、PII、密钥、公开 API、数据库查询、文件上传、数据删除、CI/部署变更均触发安全审查。CRITICAL/HIGH 发现阻塞 Ship。
+- **Subagent 后仍需完整流程**：Subagent 完成 ≠ 工作流完成。使用 subagent 后必须继续跑 Review、Simplify 和 Verify。
 - **批准边界**：Plan 批准只授权本地编辑、测试、lint/typecheck/build、review、simplify 和 verify。push、merge、PR、发布、部署、凭据修改、第三方资源变更、破坏性数据操作均须再次批准。
 - **验证证据**：无 fresh verification evidence 不报告完成。
+- **完成门禁**：最终报告前每个阶段任务必须为 `completed` 或已给出跳过理由。Simplify 不可跳过。
 
 ## 安装
 
