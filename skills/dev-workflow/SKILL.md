@@ -103,6 +103,17 @@ For non-trivial work:
 
 Do not write implementation code before spec and plan approval unless the task is explicitly classified as trivial.
 
+### Spec And Plan Document Rules
+
+Every spec or plan document created by Agent-Skills, Superpowers, or dev-workflow MUST follow these rules:
+
+1. Write the document body in Chinese. Technical identifiers, file paths, command names, API names, and quoted source text may remain in their original language.
+2. Store documents under `docs/<feature>/`, where `<feature>` is a short kebab-case feature or task name chosen from the user's request.
+3. Use exactly `docs/<feature>/spec.md` for the approved spec.
+4. Use exactly `docs/<feature>/plan.md` for the approved implementation plan.
+5. If an upstream skill suggests another default path, override it with this repository rule.
+6. If a document already exists for that feature, update the existing file immutably by writing the new complete version instead of creating dated duplicates.
+
 ## Execute
 
 Use Superpowers TDD as the primary implementation discipline:

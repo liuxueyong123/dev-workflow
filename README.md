@@ -52,6 +52,7 @@ Intake (能力可用性检查)
 5. **TDD 优先采用 Superpowers**：Agent-Skills 也有测试能力，但红绿重构纪律以 Superpowers 为主。
 6. **质量门禁优先采用 Agent-Skills**：代码审查、简化、安全、发布门禁以 Agent-Skills 为主。
 7. **完成声明必须有验证证据**：最终报告前必须运行 fresh verification，并说明命令和结果。
+8. **Spec 和 Plan 必须中文落盘**：无论由 Agent-Skills、Superpowers 还是 dev-workflow 生成，都必须写入 `docs/<feature>/spec.md` 和 `docs/<feature>/plan.md`；`<feature>` 使用简短 kebab-case 名称。技术标识、路径、命令、API 名称和引用文本可以保留原语言。
 
 ## 适用场景
 
@@ -109,18 +110,17 @@ Intake (能力可用性检查)
 
 ### 3. 安装 dev-workflow
 
-个人全局安装：
+从你发布到 GitHub 的 marketplace 安装：
 
-```bash
-mkdir -p ~/.claude/skills
-cp -R skills/dev-workflow ~/.claude/skills/dev-workflow
+```text
+/plugin marketplace add liuxueyong123/dev-workflow
+/plugin install dev-workflow@dev-workflow
 ```
 
-项目内安装：
+如果 marketplace 名称和仓库名不同，以 `/plugin marketplace list` 显示的名称为准：
 
-```bash
-mkdir -p .claude/skills
-cp -R /path/to/dev-workflow/skills/dev-workflow .claude/skills/dev-workflow
+```text
+/plugin install dev-workflow@<marketplace-name>
 ```
 
 本地插件调试：
@@ -193,21 +193,13 @@ cp -R /tmp/agent-skills/skills/* .agents/skills/
 
 ### 3. 安装 dev-workflow
 
-个人全局安装：
+从你发布到 GitHub 的 marketplace 安装：
 
-```bash
-mkdir -p ~/.agents/skills
-cp -R skills/dev-workflow ~/.agents/skills/dev-workflow
-```
+1. 在 Codex CLI 中打开 `/plugins`，或在 Codex App 侧边栏打开 `Plugins`。
+2. 添加 GitHub marketplace：`liuxueyong123/dev-workflow`。
+3. 选择 `dev-workflow` 并安装。
 
-项目内安装：
-
-```bash
-mkdir -p .agents/skills
-cp -R /path/to/dev-workflow/skills/dev-workflow .agents/skills/dev-workflow
-```
-
-重启 Codex，或等待 Codex 自动检测 skill 变化。
+如果 Codex 显示的 marketplace 或 skill 名称带前缀，以界面显示为准。
 
 ### 4. 推荐 AGENTS.md 配置
 
@@ -220,6 +212,7 @@ cp -R /path/to/dev-workflow/skills/dev-workflow .agents/skills/dev-workflow
 - `$dev-workflow` 必须组合 Agent-Skills 和 Superpowers，而不是退化成普通 checklist。
 - Agent-Skills 负责 spec、plan、review、code-simplify、security、ship 门禁。
 - Superpowers 负责 brainstorming、writing-plans、TDD、systematic-debugging、worktree、verification。
+- Agent-Skills 或 Superpowers 产出的 spec/plan 文档必须使用中文，并写入 `docs/<feature>/spec.md` 与 `docs/<feature>/plan.md`。
 - 如果 Agent-Skills 或 Superpowers 缺失，先提示安装；只有用户明确同意才允许降级执行。
 - push、merge、PR、发布、部署、凭据或第三方资源变更前必须先询问用户。
 ```
@@ -298,6 +291,12 @@ node -e "const s=require('fs').readFileSync('skills/dev-workflow/SKILL.md','utf8
 
 ```bash
 node -e "const e=JSON.parse(require('fs').readFileSync('evals/evals.json','utf8')); if(e.evals.length!==5) throw new Error('expected 5 evals'); for (const x of e.evals) { if(!x.id||!x.prompt||!x.expected_output||!Array.isArray(x.files)) throw new Error('bad eval '+(x.id||'<missing>')); } console.log('eval schema ok')"
+```
+
+检查 spec/plan 文档规则：
+
+```bash
+node -e "const s=require('fs').readFileSync('skills/dev-workflow/SKILL.md','utf8'); for (const c of ['docs/<feature>/spec.md','docs/<feature>/plan.md','Chinese']) { if(!s.includes(c)) throw new Error('missing '+c); } console.log('doc routing ok')"
 ```
 
 ## 官方参考

@@ -4,13 +4,13 @@
     {
       "id": "claude-code-agent-skills-superpowers",
       "prompt": "In Claude Code, use dev-workflow to build OAuth login with Agent-Skills and Superpowers installed.",
-      "expected_output": "Uses Agent-Skills for spec, plan, review, code simplification, security, and shipping gates; uses Superpowers for brainstorming, writing-plans, TDD, debugging, worktree or task isolation, and verification before completion.",
+      "expected_output": "Uses Agent-Skills for spec, plan, review, code simplification, security, and shipping gates; uses Superpowers for brainstorming, writing-plans, TDD, debugging, worktree or task isolation, and verification before completion. Any spec or plan documents are written in Chinese under docs/<feature>/spec.md and docs/<feature>/plan.md.",
       "files": []
     },
     {
       "id": "codex-agent-skills-superpowers",
       "prompt": "In Codex, use dev-workflow to add a paginated users endpoint. Agent-Skills are installed in .agents/skills and Superpowers is installed as a Codex plugin.",
-      "expected_output": "Uses the Codex-exposed skill names, keeps Agent-Skills as the quality-gate layer, keeps Superpowers as the execution-discipline layer, and stops before push or PR creation without approval.",
+      "expected_output": "Uses the Codex-exposed skill names, keeps Agent-Skills as the quality-gate layer, keeps Superpowers as the execution-discipline layer, writes spec/plan documents in Chinese under docs/<feature>/spec.md and docs/<feature>/plan.md, and stops before push or PR creation without approval.",
       "files": []
     },
     {
@@ -22,7 +22,7 @@
     {
       "id": "security-sensitive-change",
       "prompt": "Use dev-workflow to add password reset tokens and email delivery to the authentication flow.",
-      "expected_output": "Runs Agent-Skills spec and plan gates, uses Superpowers TDD execution, then requires Agent-Skills security-and-hardening before verification and handoff.",
+      "expected_output": "Runs Agent-Skills spec and plan gates with Chinese documents under docs/<feature>/spec.md and docs/<feature>/plan.md, uses Superpowers TDD execution, then requires Agent-Skills security-and-hardening before verification and handoff.",
       "files": []
     },
     {
