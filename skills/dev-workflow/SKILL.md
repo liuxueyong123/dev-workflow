@@ -5,7 +5,7 @@ description: MUST use when the user explicitly asks to use, run, invoke, follow,
 
 # Dev Workflow
 
-Coordinates **Agent-Skills** (spec, plan, review, simplify, security, ship) and **Superpowers** (brainstorming, TDD, debugging, worktrees, verification) as one production workflow.
+Coordinates **Agent-Skills** (intent, spec, plan, review, simplify, security, ship) and **Superpowers** (brainstorming, TDD, debugging, worktrees, verification) as one production workflow.
 
 ## Explicit Invocation Only
 
@@ -72,7 +72,7 @@ Review and security run in parallel when both are triggered. Never skip a phase 
 | Phase               | Primary                                                     | Secondary                                    | Exit gate                                                                                                                                                                    |
 | ------------------- | ----------------------------------------------------------- | -------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Intake              | Capability check (see Capability Gate)                      | —                                            | Agent-Skills and Superpowers both confirmed, or degraded mode explicitly approved                                                                                            |
-| Define              | Agent-Skills `spec-driven-development` or `/spec`           | Superpowers `brainstorming`                  | User approves the spec content; archive choice is recorded                                                                                                                   |
+| Define              | Agent-Skills `interview-me`, `spec-driven-development` or `/spec` | Superpowers `brainstorming`              | Confirmed intent feeds the approved spec; archive choice is recorded                                                                                                          |
 | Plan                | Agent-Skills `planning-and-task-breakdown` or `/plan`       | Superpowers `writing-plans`                  | User approves the task plan; plan is archived only if archive was chosen after spec approval                                                                                 |
 | Isolate             | Superpowers `using-git-worktrees`                           | Agent-Skills `git-workflow-and-versioning`   | Work area is safe                                                                                                                                                            |
 | Build               | Superpowers `test-driven-development`; use `subagent-driven-development` when plan tasks are independent with disjoint write scopes | Agent-Skills `incremental-implementation` | Approved spec/plan implemented; focused tests pass                                                                                                                           |
@@ -102,7 +102,7 @@ Each phase has hard gates. Stop at each gate and wait. See [Hard Gates](#hard-ga
 
 ### Define
 
-1. Invoke `/spec` or `spec-driven-development`; use `brainstorming` for ambiguity.
+1. When intent is underspecified, invoke `interview-me` first; then invoke `/spec` or `spec-driven-development`, using `brainstorming` for ambiguity.
 2. Output the complete spec draft.
 
 **🔴 GATE 1 — Spec Approval:**

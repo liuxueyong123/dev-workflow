@@ -6,11 +6,12 @@
 
 ## 为什么需要 dev-workflow
 
-Agent-Skills 提供了一组高质量的单步技能（spec、plan、review、simplify、security、ship），Superpowers 提供了严格的执行纪律（TDD、debugging、brainstorming、worktree、verification）。但它们各自独立使用时缺少统一的阶段编排——什么时候写 spec、什么时候 review、review 完是否必须 simplify，这些衔接逻辑正是 dev-workflow 承担的职责。
+Agent-Skills 提供了一组高质量的单步技能（intent、spec、plan、review、simplify、security、ship），Superpowers 提供了严格的执行纪律（TDD、debugging、brainstorming、worktree、verification）。但它们各自独立使用时缺少统一的阶段编排——什么时候先澄清意图、什么时候写 spec、什么时候 review、review 完是否必须 simplify，这些衔接逻辑正是 dev-workflow 承担的职责。
 
 | 问题 | dev-workflow 如何解决 |
 |------|----------------------|
 | 写了 spec 不执行，或跳过 spec 直接写代码 | Define → Plan → Build 串行，每步有 Hard Gate |
+| 需求意图不清晰就开始写 spec | Define 先用 `interview-me` 抽取 confirmed intent，再进入 spec |
 | 写了代码不 review | Review 是必跑阶段，不可跳过 |
 | review 发现问题不处理 | Simplify 紧随 Review，强制处理所有发现 |
 | spec 确认后直接开始实现，不询问留档 | Gate 1（spec 确认）和 Gate 2（留档询问）分离 |
@@ -21,7 +22,7 @@ Agent-Skills 提供了一组高质量的单步技能（spec、plan、review、si
 
 ```text
 Intake    检查 Agent-Skills 和 Superpowers 是否可用
-Define    产出 spec → 🔴 Gate 1 用户确认 → 🔴 Gate 2 询问留档
+Define    必要时先用 interview-me 确认 intent → 产出 spec → 🔴 Gate 1 用户确认 → 🔴 Gate 2 询问留档
 Plan      产出 plan → 🔴 Gate 3 用户确认
 Isolate   隔离工作区；greenfield 项目可跳过
 Build     按已确认的 spec/plan 实现；独立任务可用多 agent
@@ -84,7 +85,7 @@ Ship      🔴 Gate 4 用户明确批准后 push / PR / merge / deploy
 | 阶段     | Primary                                                    | Secondary                        | 退出条件                                        |
 | -------- | ---------------------------------------------------------- | -------------------------------- | ----------------------------------------------- |
 | Intake   | 能力检查（Agent-Skills）                                    | —                                | 两套 skill 均确认可用，或用户明确同意降级        |
-| Define   | `spec-driven-development` / `/spec`（Agent-Skills）         | `brainstorming`（Superpowers）    | Gate 1 确认 spec + Gate 2 确认留档               |
+| Define   | `interview-me` + `spec-driven-development` / `/spec`（Agent-Skills） | `brainstorming`（Superpowers） | confirmed intent 进入 spec；Gate 1 确认 spec + Gate 2 确认留档 |
 | Plan     | `planning-and-task-breakdown` / `/plan`（Agent-Skills）     | `writing-plans`（Superpowers）    | Gate 3 确认 plan                                 |
 | Isolate  | `using-git-worktrees`（Superpowers）                        | `git-workflow-and-versioning`（Agent-Skills） | 工作区安全                           |
 | Build    | `test-driven-development` / `subagent-driven-development`（Superpowers） | `incremental-implementation`（Agent-Skills） | 按已确认 spec/plan 实现；TDD 通过 |

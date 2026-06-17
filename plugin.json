@@ -1,5 +1,5 @@
 {
   "name": "dev-workflow",
-  "version": "1.4.4",
+  "version": "1.4.5",
   "description": "An explicit-invocation development workflow skill for Claude Code and Codex that composes Agent-Skills quality gates with Superpowers execution discipline."
 }
