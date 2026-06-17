@@ -1,6 +1,6 @@
 {
   "name": "dev-workflow",
-  "version": "1.5.2",
+  "version": "1.5.4",
   "description": "An explicit-invocation development workflow skill for Claude Code and Codex that composes Agent-Skills quality gates, standalone spec review skills, and Superpowers execution discipline.",
   "author": {
     "name": "liuxueyong123",
