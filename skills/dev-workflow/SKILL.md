@@ -134,12 +134,12 @@ Each phase has hard gates. Stop at each gate and wait. See [Hard Gates](#hard-ga
 
 ### Plan
 
-**Input:** Approved spec. **Execute steps in strict order — do NOT interleave. Grill happens AFTER the draft is presented, never before or during.**
+**Input:** Approved spec. **Execute steps in strict order — do NOT interleave. Grill happens AFTER the draft is presented, never before or during. Plan body MUST be in Chinese** (technical identifiers, paths, code symbols excepted).
 
 1. Invoke `/plan` or `planning-and-task-breakdown`; use `writing-plans`. Resolve implementation decisions: frameworks, libraries, DB, API patterns, file structure, architecture.
-2. Output the raw plan draft. Do NOT include grill findings here — the draft is un-reviewed.
-3. **MANDATORY:** Now invoke `grill-with-docs` via the Skill tool against the completed draft. Paste its actual output verbatim. Do NOT write your own assessment under a "grill" label — only a real skill invocation counts. Fabricating grill output = workflow violation.
-4. Revise the plan based on the actual grill output. Present the final plan with a summary of what changed.
+2. Output the raw plan draft in Chinese. Do NOT include grill findings here — the draft is un-reviewed.
+3. **MANDATORY:** Now invoke `grill-with-docs` via the Skill tool against the completed draft. The skill works interactively — relay each question to the user one at a time, wait for the answer, then relay the next. Do NOT batch all output at once. Do NOT write your own assessment under a "grill" label. Fabricating output = workflow violation.
+4. Revise the plan based on the actual grill Q&A. Present the final plan in Chinese with a summary of what changed.
 
 **🔴 GATE 4 — Plan Approval:**
 - Ask: "Does this plan look correct? Shall I proceed with implementation?"
@@ -147,9 +147,10 @@ Each phase has hard gates. Stop at each gate and wait. See [Hard Gates](#hard-ga
 
 After confirmation: archive plan to `docs/<feature>/plan.md` only if archive was chosen at Gate 3. Then proceed to Build.
 
-### Document Rules (when archiving)
+### Document Rules
 
-- Body in Chinese; technical identifiers, paths, and quoted source text may remain in original language.
+- **All user-facing output** (intent summary, spec, plan draft, plan final) must be in Chinese. Technical identifiers, file paths, code symbols, and quoted source text may remain in original language.
+- **Archiving** (when chosen at Gate 3): same language rules apply.
 - Store under `docs/<feature>/` (kebab-case).
 - `intent.md` for confirmed intent summary, `spec.md` for confirmed spec, `plan.md` for confirmed plan.
 - If `docs/<feature>/` already exists, auto-suffix with `-2`, `-3`, etc. Never silently overwrite an existing directory.
