@@ -134,12 +134,12 @@ Each phase has hard gates. Stop at each gate and wait. See [Hard Gates](#hard-ga
 
 ### Plan
 
-**Input:** Approved spec.
+**Input:** Approved spec. **Execute steps in strict order — do NOT interleave. Grill happens AFTER the draft is presented, never before or during.**
 
 1. Invoke `/plan` or `planning-and-task-breakdown`; use `writing-plans`. Resolve implementation decisions: frameworks, libraries, DB, API patterns, file structure, architecture.
-2. Output the plan draft.
-3. **MANDATORY — invoke the real skill, do NOT fabricate:** Actually call `grill-with-docs` (Skill tool or equivalent) against the plan draft. Paste its raw output verbatim — do NOT summarize, paraphrase, or write a self-invented "grill conclusion". If the skill is unavailable, stop and report. Fabricating grill output is a workflow violation. If the skill returns empty/no findings, state that explicitly rather than inventing content.
-4. Revise the plan based on grill findings. Summarize changes before presenting the final plan.
+2. Output the raw plan draft. Do NOT include grill findings here — the draft is un-reviewed.
+3. **MANDATORY:** Now invoke `grill-with-docs` via the Skill tool against the completed draft. Paste its actual output verbatim. Do NOT write your own assessment under a "grill" label — only a real skill invocation counts. Fabricating grill output = workflow violation.
+4. Revise the plan based on the actual grill output. Present the final plan with a summary of what changed.
 
 **🔴 GATE 4 — Plan Approval:**
 - Ask: "Does this plan look correct? Shall I proceed with implementation?"
