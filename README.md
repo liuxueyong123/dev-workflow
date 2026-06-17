@@ -1,17 +1,18 @@
 # Dev Workflow
 
-`dev-workflow` 是一个显式调用的开发流程 skill，把 **Agent-Skills** 的质量门禁和 **Superpowers** 的执行纪律串成一条端到端工作流。Claude Code 和 Codex 均可运行。
+`dev-workflow` 是一个显式调用的开发流程 skill，把 **Agent-Skills** 的质量门禁、独立 spec 审查 skills（`grill-me`、`grill-with-docs`）和 **Superpowers** 的执行纪律串成一条端到端工作流。Claude Code 和 Codex 均可运行。
 
-它不会替代 Agent-Skills 或 Superpowers，也不是普通任务的默认流程——只有用户明确点名 `dev-workflow`、`/dev-workflow`、`dev-flow` 时才启用。
+它不会替代 Agent-Skills、独立 skills 或 Superpowers，也不是普通任务的默认流程——只有用户明确点名 `dev-workflow`、`/dev-workflow`、`dev-flow` 时才启用。
 
 ## 为什么需要 dev-workflow
 
-Agent-Skills 提供了一组高质量的单步技能（intent、spec、plan、review、simplify、security、ship），Superpowers 提供了严格的执行纪律（TDD、debugging、brainstorming、worktree、verification）。但它们各自独立使用时缺少统一的阶段编排——什么时候先澄清意图、什么时候写 spec、什么时候 review、review 完是否必须 simplify，这些衔接逻辑正是 dev-workflow 承担的职责。
+Agent-Skills 提供了一组高质量的单步技能（intent、spec、plan、review、simplify、security、ship），`grill-me` 和 `grill-with-docs` 是独立 skills，用于审查 spec 的假设、边界、术语和项目文档一致性；Superpowers 提供严格的执行纪律（TDD、debugging、brainstorming、worktree、verification）。这些能力各自独立使用时缺少统一阶段编排——什么时候先澄清意图、什么时候写 spec、什么时候拷问 spec、什么时候 review、review 完是否必须 simplify，这些衔接逻辑正是 dev-workflow 承担的职责。
 
 | 问题 | dev-workflow 如何解决 |
 |------|----------------------|
 | 写了 spec 不执行，或跳过 spec 直接写代码 | Define → Plan → Build 串行，每步有 Hard Gate |
 | 需求意图不清晰就开始写 spec | Define 先用 `interview-me` 抽取 confirmed intent，再进入 spec |
+| spec 通过得太快，缺少拷问和文档对齐 | Define 中用独立 skills `grill-me`、`grill-with-docs` 审查 spec |
 | 写了代码不 review | Review 是必跑阶段，不可跳过 |
 | review 发现问题不处理 | Simplify 紧随 Review，强制处理所有发现 |
 | spec 确认后直接开始实现，不询问留档 | Gate 1（spec 确认）和 Gate 2（留档询问）分离 |
@@ -22,7 +23,7 @@ Agent-Skills 提供了一组高质量的单步技能（intent、spec、plan、re
 
 ```text
 Intake    检查 Agent-Skills 和 Superpowers 是否可用
-Define    必要时先用 interview-me 确认 intent → 产出 spec → 🔴 Gate 1 用户确认 → 🔴 Gate 2 询问留档
+Define    必要时先用 interview-me 确认 intent → 产出 spec → 用独立 grill skills 审查 → 🔴 Gate 1 用户确认 → 🔴 Gate 2 询问留档
 Plan      产出 plan → 🔴 Gate 3 用户确认
 Isolate   隔离工作区；greenfield 项目可跳过
 Build     按已确认的 spec/plan 实现；独立任务可用多 agent
@@ -78,14 +79,14 @@ Ship      🔴 Gate 4 用户明确批准后 push / PR / merge / deploy
 - 输出 plan 后立刻创建文件（正确做法：plan → STOP → 等确认 → 实现）
 - 跳过留档询问直接进入 plan（正确做法：spec 确认 → 问留档 → plan）
 
-## Agent-Skills 与 Superpowers 分工
+## Agent-Skills、独立 Skills 与 Superpowers 分工
 
-每个阶段的退出条件由对应的 skill 保证。Primary 负责主要产出，Secondary 负责辅助支撑——Primary 可能是 Agent-Skills 也可能是 Superpowers。
+每个阶段的退出条件由对应的 skill 保证。Primary 负责主要产出，Secondary 负责辅助支撑——Primary 可能是 Agent-Skills、独立 skills 或 Superpowers。`grill-me` 和 `grill-with-docs` 不是 Agent-Skills；它们是独立安装/维护的 spec 审查 skills。
 
 | 阶段     | Primary                                                    | Secondary                        | 退出条件                                        |
 | -------- | ---------------------------------------------------------- | -------------------------------- | ----------------------------------------------- |
-| Intake   | 能力检查（Agent-Skills）                                    | —                                | 两套 skill 均确认可用，或用户明确同意降级        |
-| Define   | `interview-me` + `spec-driven-development` / `/spec`（Agent-Skills） | `brainstorming`（Superpowers） | confirmed intent 进入 spec；Gate 1 确认 spec + Gate 2 确认留档 |
+| Intake   | 能力检查（Agent-Skills、独立 skills、Superpowers）           | —                                | 所需 skills 均确认可用，或用户明确同意降级        |
+| Define   | `interview-me` + `spec-driven-development` / `/spec`（Agent-Skills）；`grill-me` + `grill-with-docs`（独立 skills） | `brainstorming`（Superpowers） | confirmed intent 和 grill review 进入 spec；Gate 1 确认 spec + Gate 2 确认留档 |
 | Plan     | `planning-and-task-breakdown` / `/plan`（Agent-Skills）     | `writing-plans`（Superpowers）    | Gate 3 确认 plan                                 |
 | Isolate  | `using-git-worktrees`（Superpowers）                        | `git-workflow-and-versioning`（Agent-Skills） | 工作区安全                           |
 | Build    | `test-driven-development` / `subagent-driven-development`（Superpowers） | `incremental-implementation`（Agent-Skills） | 按已确认 spec/plan 实现；TDD 通过 |
@@ -151,7 +152,7 @@ Use dev-workflow to fix a flaky test
 
 ## 关键约束
 
-- **无降级**：Agent-Skills 或 Superpowers 缺失时停住，告知用户缺少什么。仅在用户明确要求时降级执行。
+- **无降级**：Agent-Skills、独立 spec 审查 skills 或 Superpowers 缺失时停住，告知用户缺少什么。仅在用户明确要求时降级执行。
 - **确认先行**：非平凡任务不跳过 Define 和 Plan；spec 和 plan 先在对话中确认再继续。
 - **留档可选**：spec 确认后单独询问留档，不默认写入文件。用户选留档才写 `docs/<feature>/spec.md` 和 `docs/<feature>/plan.md`。若 `docs/<feature>/` 已存在，自动后缀 `-2`、`-3`，绝不静默覆盖已有目录。
 - **中文正文**：留档文档正文使用中文。技术标识、文件路径、命令名、API 名和引用原文可保留原语言。
@@ -178,7 +179,7 @@ Use dev-workflow to fix a flaky test
 
 ### Codex
 
-Superpowers 和 dev-workflow 在 `/plugins` 界面搜索安装。Agent-Skills 需手动安装：
+Superpowers 和 dev-workflow 在 `/plugins` 界面搜索安装。Agent-Skills 需手动安装；`grill-me`、`grill-with-docs` 是独立 skills，应按本机 skill 目录或团队分发方式安装，不属于 Agent-Skills 仓库：
 
 ```bash
 git clone https://github.com/addyosmani/agent-skills.git /tmp/agent-skills

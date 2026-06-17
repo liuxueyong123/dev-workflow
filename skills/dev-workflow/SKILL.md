@@ -5,7 +5,7 @@ description: MUST use when the user explicitly asks to use, run, invoke, follow,
 
 # Dev Workflow
 
-Coordinates **Agent-Skills** (intent, spec, plan, review, simplify, security, ship) and **Superpowers** (brainstorming, TDD, debugging, worktrees, verification) as one production workflow.
+Coordinates **Agent-Skills** (intent, spec, plan, review, simplify, security, ship), standalone skills (`grill-me`, `grill-with-docs`), and **Superpowers** (brainstorming, TDD, debugging, worktrees, verification) as one production workflow.
 
 ## Explicit Invocation Only
 
@@ -24,7 +24,7 @@ On positive invocation:
 
 ## Capability Gate
 
-Check that both Agent-Skills and Superpowers are available. If either is missing, stop and tell the user. Continue in degraded mode only if the user explicitly approves it.
+Check that Agent-Skills, Superpowers, and required standalone skills (`grill-me`, `grill-with-docs` for spec review) are available. If any are missing, stop and tell the user. Continue in degraded mode only if the user explicitly approves it.
 
 ## Phase Tracking (MANDATORY)
 
@@ -71,8 +71,8 @@ Review and security run in parallel when both are triggered. Never skip a phase 
 
 | Phase               | Primary                                                     | Secondary                                    | Exit gate                                                                                                                                                                    |
 | ------------------- | ----------------------------------------------------------- | -------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Intake              | Capability check (see Capability Gate)                      | —                                            | Agent-Skills and Superpowers both confirmed, or degraded mode explicitly approved                                                                                            |
-| Define              | Agent-Skills `interview-me`, `spec-driven-development` or `/spec` | Superpowers `brainstorming`              | Confirmed intent feeds the approved spec; archive choice is recorded                                                                                                          |
+| Intake              | Capability check (see Capability Gate)                      | —                                            | Agent-Skills, standalone skills, and Superpowers confirmed, or degraded mode explicitly approved                                                                             |
+| Define              | Agent-Skills `interview-me`, `spec-driven-development`; standalone `grill-me`, `grill-with-docs`; `/spec` | Superpowers `brainstorming` | Intent and grill review feed the approved spec; archive choice is recorded                                                                                                    |
 | Plan                | Agent-Skills `planning-and-task-breakdown` or `/plan`       | Superpowers `writing-plans`                  | User approves the task plan; plan is archived only if archive was chosen after spec approval                                                                                 |
 | Isolate             | Superpowers `using-git-worktrees`                           | Agent-Skills `git-workflow-and-versioning`   | Work area is safe                                                                                                                                                            |
 | Build               | Superpowers `test-driven-development`; use `subagent-driven-development` when plan tasks are independent with disjoint write scopes | Agent-Skills `incremental-implementation` | Approved spec/plan implemented; focused tests pass                                                                                                                           |
@@ -103,7 +103,8 @@ Each phase has hard gates. Stop at each gate and wait. See [Hard Gates](#hard-ga
 ### Define
 
 1. When intent is underspecified, invoke `interview-me` first; then invoke `/spec` or `spec-driven-development`, using `brainstorming` for ambiguity.
-2. Output the complete spec draft.
+2. For spec review, use `grill-me` to test assumptions, boundaries, success criteria, counterexamples, and risks; use `grill-with-docs` to align terminology, ADRs, context docs, and project knowledge, updating docs in the right place when decisions crystallize.
+3. Output the complete spec draft.
 
 **🔴 GATE 1 — Spec Approval:**
 - Ask: "Does this spec look correct? Shall I proceed to the plan phase?"
@@ -178,23 +179,7 @@ Stop for explicit user approval before: commits (if including unrelated user wor
 
 ## Response Shape
 
-**Working update:**
-
-> Using dev-workflow.
-
-**Missing capability:**
-
-> Agent-Skills is available, but Superpowers is not. Install Superpowers or confirm degraded mode.
-
-**Phase progress** (at major transitions only):
-
-> ✅ Intake ✅ Define ✅ Plan ✅ Build 🔄 Review ⏳ Simplify
-
-**Final report** (after Completion Gate):
-
-> Changed: \<files\>
-> Agent-Skills gates: <spec/plan/review/simplify/security/ship status — each with resolution>
-> Superpowers gates: <TDD/debug/worktree/verification status — each with resolution>
-> Simplify: findings addressed, deferred, or rejected
-> Verified: \<commands and results\>
-> Not done: \<commit/push/PR/deploy if skipped\>
+- Working update: `Using dev-workflow.`
+- Missing capability: `Agent-Skills is available, but Superpowers is not. Install Superpowers or confirm degraded mode.`
+- Phase progress at major transitions only: `✅ Intake ✅ Define ✅ Plan ✅ Build 🔄 Review ⏳ Simplify`
+- Final report after Completion Gate: changed files; Agent-Skills/standalone gates; Superpowers gates; Simplify resolution; exact verification results; skipped commit/push/PR/deploy.

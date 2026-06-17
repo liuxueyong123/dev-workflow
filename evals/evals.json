@@ -78,6 +78,12 @@
       "prompt": "Fix a typo in the README heading using dev-workflow.",
       "expected_output": "Classifies the task as trivial, skips Define and Plan, performs a focused edit, still runs Review and Simplify, and uses fresh verification before reporting completion.",
       "files": []
+    },
+    {
+      "id": "spec-review-grill-flows",
+      "prompt": "Use dev-workflow to review a spec document before implementation. Agent-Skills and Superpowers are installed.",
+      "expected_output": "Uses dev-workflow and treats spec review as part of Define. Uses Agent-Skills spec-driven-development for the spec gate, then uses standalone skill grill-me to pressure-test assumptions, boundaries, success criteria, counterexamples, and risks, and standalone skill grill-with-docs to align terminology, existing project docs, ADRs, context, and project knowledge. Does not describe either grill flow as an Agent-Skill or as a replacement for spec-driven-development or the hard approval gates.",
+      "files": []
     }
   ]
 }
