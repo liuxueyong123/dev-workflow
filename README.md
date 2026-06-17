@@ -27,7 +27,7 @@ Interview 用 interview-me 澄清意图，驱动置信度 ≥ 95% → 🔴 Gate 
 Define    基于确认的 intent summary 写 spec（纯行为，不含实现细节）→ 🔴 Gate 2 用户确认 → 🔴 Gate 3 询问留档
 Plan      产出 plan 草稿 → 用 grill-with-docs 审查 → 修订 → 🔴 Gate 4 用户确认
 Isolate   隔离工作区；greenfield 项目可跳过
-Build     按已确认的 spec/plan 实现；独立任务可用多 agent
+Build     按已确认的 spec/plan 实现；默认 subagent 并行执行（每个 subagent 内部走 TDD）
 Debug     仅在构建、测试或行为异常时触发
 Review    代码审查，分析 correctness / readability / architecture / security / performance
 Security  安全敏感改动时与 Review 并行运行
@@ -94,7 +94,7 @@ Ship      🔴 Gate 5 用户明确批准后 push / PR / merge / deploy
 | Define   | `spec-driven-development`（Agent-Skills）                   | `brainstorming`（Superpowers）   | 基于确认的 intent summary 产出行为级 spec（无实现细节）；Gate 2 确认 + Gate 3 留档 |
 | Plan     | `planning-and-task-breakdown` / `/plan`（Agent-Skills）；`grill-with-docs`（独立 skill） | `writing-plans`（Superpowers） | plan 草稿经 grill-with-docs 审查并修订；Gate 4 确认 plan |
 | Isolate  | `using-git-worktrees`（Superpowers）                        | `git-workflow-and-versioning`（Agent-Skills） | 工作区安全                           |
-| Build    | `test-driven-development` / `subagent-driven-development`（Superpowers） | `incremental-implementation`（Agent-Skills） | 按已确认 spec/plan 实现；TDD 通过 |
+| Build    | `subagent-driven-development`（Superpowers，默认，subagent 内部 TDD）；`test-driven-development`（单任务/写范围重叠时） | `incremental-implementation`（Agent-Skills） | 按已确认 spec/plan 实现；TDD 通过 |
 | Debug    | `systematic-debugging`（Superpowers）                       | `debugging-and-error-recovery`（Agent-Skills） | 根因修复 + 回归测试                   |
 | Review   | `code-review-and-quality` / `/review`（Agent-Skills）       | `requesting-code-review`（Superpowers） | CRITICAL/HIGH 修复；其余捕获给 Simplify   |
 | Security | `security-and-hardening`（Agent-Skills）                    | 项目 audit 命令                   | 安全发现已处理或接受                             |
