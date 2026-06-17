@@ -30,40 +30,42 @@ Check that Agent-Skills, Superpowers, and required standalone skills (`grill-me`
 
 Create a TodoWrite task for every phase. Each must be `completed` or `deleted` (with reason) before the final report.
 
-| Task subject      | Skip condition                               |
-| ----------------- | -------------------------------------------- |
-| "Phase: Intake"   | Never                                        |
-| "Phase: Define"   | Trivial change only (see Scope Rules)        |
-| "Phase: Plan"     | Trivial change only                          |
-| "Phase: Isolate"  | Greenfield project with no existing branches |
-| "Phase: Build"    | Never                                        |
-| "Phase: Debug"    | No failures encountered                      |
-| "Phase: Review"   | Never                                        |
-| "Phase: Security" | No security-gate triggers                    |
-| "Phase: Simplify" | Never — mandatory after Review               |
-| "Phase: Verify"   | Never                                        |
-| "Phase: Ship"     | User has not requested merge/deploy/publish  |
+| Task subject       | Skip condition                               |
+| ------------------ | -------------------------------------------- |
+| "Phase: Intake"    | Never                                        |
+| "Phase: Interview" | Trivial change only (see Scope Rules)        |
+| "Phase: Define"    | Trivial change only                          |
+| "Phase: Plan"      | Trivial change only                          |
+| "Phase: Isolate"   | Greenfield project with no existing branches |
+| "Phase: Build"     | Never                                        |
+| "Phase: Debug"     | No failures encountered                      |
+| "Phase: Review"    | Never                                        |
+| "Phase: Security"  | No security-gate triggers                    |
+| "Phase: Simplify"  | Never — mandatory after Review               |
+| "Phase: Verify"    | Never                                        |
+| "Phase: Ship"      | User has not requested merge/deploy/publish  |
 
 ## Hard Gates (MANDATORY STOP POINTS)
 
-Four hard gates require explicit user confirmation before proceeding. **Skipping a gate is a workflow violation.** Output the draft, ask for confirmation, then STOP — the user's next message IS the gate response.
+Five hard gates require explicit user confirmation before proceeding. **Skipping a gate is a workflow violation.** Output the draft, ask for confirmation, then STOP — the user's next message IS the gate response.
 
-| Gate | Phase  | Trigger                | Required Confirmation       |
-| ---- | ------ | ---------------------- | --------------------------- |
-| 1    | Define | Spec draft output      | User approves spec content  |
-| 2    | Define | Spec approved          | User chooses archive or not |
-| 3    | Plan   | Plan draft output      | User approves plan          |
-| 4    | Ship   | Before external action | User explicitly requests it |
+| Gate | Phase     | Trigger                 | Required Confirmation              |
+| ---- | --------- | ----------------------- | ---------------------------------- |
+| 1    | Interview | Intent summary output   | User approves intent summary       |
+| 2    | Define    | Spec draft output       | User approves spec content         |
+| 3    | Define    | Spec approved           | User chooses archive or not        |
+| 4    | Plan      | Plan draft output       | User approves plan                 |
+| 5    | Ship      | Before external action  | User explicitly requests it        |
 
 **Protocol:** (1) Output the complete draft. (2) Ask a clear confirmation question. (3) **STOP. Do NOT proceed**, do NOT write code, do NOT invoke the next skill. (4) Wait for user response. (5) Only then continue.
-**Common violations:** outputting spec and immediately coding; asking spec approval + archive in one message; skipping archive question entirely.
+**Common violations:** coding right after spec output; bundling spec approval + archive in one message; skipping archive; entering Define before Interview confidence ≥ 95%.
 
 ## Workflow
 
 ```text
-intake → define → plan → isolate → build → [debug] → review  ─┐
-                                                              ├── simplify → verify → ship
-                                                    security ─┘
+intake → interview → define → plan → isolate → build → [debug] → review  ─┐
+                                                                          ├── simplify → verify → ship
+                                                                security ─┘
 ```
 Review and security run in parallel when both are triggered. Never skip a phase without marking its task `deleted` with a reason.
 
@@ -72,7 +74,8 @@ Review and security run in parallel when both are triggered. Never skip a phase 
 | Phase               | Primary                                                     | Secondary                                    | Exit gate                                                                                                                                                                    |
 | ------------------- | ----------------------------------------------------------- | -------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Intake              | Capability check (see Capability Gate)                      | —                                            | Agent-Skills, standalone skills, and Superpowers confirmed, or degraded mode explicitly approved                                                                             |
-| Define              | Agent-Skills `interview-me`, `spec-driven-development`; standalone `grill-me`, `grill-with-docs`; `/spec` | Superpowers `brainstorming` | Intent and grill review feed the approved spec; archive choice is recorded                                                                                                    |
+| Interview           | Agent-Skills `interview-me`                                 | Superpowers `brainstorming`                  | Confidence ≥ 95%; all GUESS markers resolved; intent summary output and approved by user (Gate 1)                                                                            |
+| Define              | Agent-Skills `spec-driven-development`; standalone `grill-me`, `grill-with-docs`; `/spec` | Superpowers `brainstorming` | Spec written from approved intent summary; grill review passed; archive choice recorded                                                                                       |
 | Plan                | Agent-Skills `planning-and-task-breakdown` or `/plan`       | Superpowers `writing-plans`                  | User approves the task plan; plan is archived only if archive was chosen after spec approval                                                                                 |
 | Isolate             | Superpowers `using-git-worktrees`                           | Agent-Skills `git-workflow-and-versioning`   | Work area is safe                                                                                                                                                            |
 | Build               | Superpowers `test-driven-development`; use `subagent-driven-development` when plan tasks are independent with disjoint write scopes | Agent-Skills `incremental-implementation` | Approved spec/plan implemented; focused tests pass                                                                                                                           |
@@ -85,62 +88,69 @@ Review and security run in parallel when both are triggered. Never skip a phase 
 
 ## Scope Rules
 
-Only typo, formatting-only docs, and metadata copy count as trivial changes. Every behavior change requires Define, Plan, and at least a lightweight `interview-me` pass, even when the edit is expected to touch one file. Every bug fix requires Define and Plan before Debug/Build.
+Only typo, formatting-only docs, and metadata copy count as trivial changes. Every behavior change requires Interview + Define + Plan, even when the edit is expected to touch one file. Every bug fix requires Interview + Define + Plan before Debug/Build.
 
 | Change type                                                    | Workflow                                               |
 | -------------------------------------------------------------- | ------------------------------------------------------ |
-| Typo, formatting-only docs, metadata copy                      | Direct edit, then Review + Simplify + verification     |
-| Single-file behavior change                                    | Full spec + plan, TDD, review + simplify, verification |
-| Multi-file feature or refactor                                 | Full spec + plan, TDD, review + simplify, verification |
-| Bug fix                                                        | Full spec + plan, systematic debugging, regression test, TDD fix, review + simplify, verification |
+| Typo, formatting-only docs, metadata copy                      | Direct edit, then Review + Simplify + verification          |
+| Single-file behavior change                                    | Interview + spec + plan, TDD, review + simplify, verification |
+| Multi-file feature or refactor                                 | Interview + spec + plan, TDD, review + simplify, verification |
+| Bug fix                                                        | Interview + spec + plan, systematic debugging, regression test, TDD fix, review + simplify, verification |
 | Auth, payment, PII, secrets, permissions, public API, deletion | Full workflow + security-and-hardening                 |
 | Release, deployment, rollout                                   | Ship + branch completion                               |
 
-## Define And Plan
+## Interview → Define → Plan
 
 Each phase has hard gates. Stop at each gate and wait. See [Hard Gates](#hard-gates-mandatory-stop-points).
 
-### Define
+### Interview (Intent Clarification)
 
-1. Run a **sub-skill audit** before the spec draft:
-   - interview-me: used / skipped with explicit reason. For any behavior change, use at least a lightweight pass: one hypothesis, confidence, and one question marked `GUESS` unless the user already answered it.
-   - spec-driven-development: used.
-   - grill-me: used.
-   - grill-with-docs: used.
-2. Explore code when it can answer open questions, but record the answer in the spec as `resolved from code`.
-3. `grill-me` and `grill-with-docs` must output conclusions, not just be read: assumptions checked, edge cases resolved, docs/terminology impact.
-4. Gate 1 spec draft must start with: Intent restate, Grill findings, Docs decision; then the complete spec.
+**Goal:** Use `interview-me` to drive confidence to ≥ 95%, eliminate all `GUESS` markers, and produce a user-confirmed intent summary BEFORE writing any spec. Define MUST consume this summary — never skip to spec.
 
-**🔴 GATE 1 — Spec Approval:**
-- Ask: "Does this spec look correct? Shall I proceed to the plan phase?"
-- **STOP. Do NOT proceed to plan. Do NOT ask about archiving. Do NOT write code.**
+1. Invoke `interview-me`. Iterate until confidence ≥ 95% with no unresolved `GUESS` markers.
+2. Output an **intent summary** covering: core goal, user scenarios, boundary constraints, non-goals. Code explorations that answer open questions are recorded as `resolved from code`.
+
+**🔴 GATE 1 — Intent Summary Approval:**
+- Ask: "Is this intent summary accurate and complete? May I proceed to write the spec based on it?"
+- **STOP. Do NOT enter Define. Do NOT write a spec. Do NOT write code.**
 - Wait for explicit user confirmation.
 
-**🔴 GATE 2 — Archive Decision:**
-- Ask: "Archive this spec to `docs/<feature>/spec.md`? The plan will also be archived if you choose yes."
+### Define (Spec Writing)
+
+**Prerequisite:** Gate 1 passed, intent summary approved.
+
+1. With the approved intent summary as input, run `spec-driven-development`, `grill-me`, `grill-with-docs`.
+2. `grill-me` and `grill-with-docs` must output conclusions: assumptions checked, edge cases resolved, docs/terminology impact assessed.
+3. Spec draft must start with: Intent summary recap, Grill findings, Docs decision; then the complete spec.
+
+**🔴 GATE 2 — Spec Approval:**
+- Ask: "Does this spec look correct? Shall I proceed to the plan phase?"
+- **STOP. Do NOT proceed to plan. Do NOT ask about archiving. Do NOT write code.** Wait for explicit user confirmation.
+
+**🔴 GATE 3 — Archive Decision:**
+- Ask: "Archive intent summary and spec to `docs/<feature>/`? Plan will also be archived if you choose yes."
 - **STOP until the user answers.**
-- Archive: write `docs/<feature>/spec.md`. Don't archive: skip file, note the choice.
+- Archive: write `docs/<feature>/intent.md` + `docs/<feature>/spec.md`. Don't archive: skip files, note the choice.
 
 ### Plan
 
 1. Invoke `/plan` or `planning-and-task-breakdown`; use `writing-plans`.
 2. Output the complete plan draft.
 
-**🔴 GATE 3 — Plan Approval:**
+**🔴 GATE 4 — Plan Approval:**
 - Ask: "Does this plan look correct? Shall I proceed with implementation?"
-- **STOP. Do NOT proceed to Build. Do NOT write code.**
-- Wait for explicit user confirmation.
+- **STOP. Do NOT proceed to Build. Do NOT write code.** Wait for explicit user confirmation.
 
-1. After confirmation: archive plan to `docs/<feature>/plan.md` only if archive was chosen at Gate 2. Then proceed to Build.
+After confirmation: archive plan to `docs/<feature>/plan.md` only if archive was chosen at Gate 3. Then proceed to Build.
 
 ### Document Rules (when archiving)
 
 - Body in Chinese; technical identifiers, paths, and quoted source text may remain in original language.
 - Store under `docs/<feature>/` (kebab-case).
-- `spec.md` for the confirmed spec, `plan.md` for the confirmed plan.
-- If `docs/<feature>/` already exists, auto-suffix with `-2`, `-3`, etc. (`docs/<feature>-2/`, `docs/<feature>-3/`). Never silently overwrite an existing directory.
+- `intent.md` for confirmed intent summary, `spec.md` for confirmed spec, `plan.md` for confirmed plan.
+- If `docs/<feature>/` already exists, auto-suffix with `-2`, `-3`, etc. Never silently overwrite an existing directory.
 
-**CRITICAL:** Never output a spec/plan and immediately start implementing. Spec approval authorizes only the archive question and plan. Plan approval authorizes only local execution (see Approval Boundaries).
+**CRITICAL:** Never skip Interview and go straight to spec. Never output a spec/plan and immediately start implementing. Spec approval authorizes only the archive question and plan. Plan approval authorizes only local execution (see Approval Boundaries).
 
 ## Execute
 
@@ -186,5 +196,5 @@ Stop for explicit user approval before: commits (if including unrelated user wor
 
 - Working update: `Using dev-workflow.`
 - Missing capability: `Agent-Skills is available, but Superpowers is not. Install Superpowers or confirm degraded mode.`
-- Phase progress at major transitions only: `✅ Intake ✅ Define ✅ Plan ✅ Build 🔄 Review ⏳ Simplify`
+- Phase progress at major transitions only: `✅ Intake ✅ Interview ✅ Define ✅ Plan ✅ Build 🔄 Review ⏳ Simplify`
 - Final report after Completion Gate: changed files; Agent-Skills/standalone gates; Superpowers gates; Simplify resolution; exact verification results; skipped commit/push/PR/deploy.
