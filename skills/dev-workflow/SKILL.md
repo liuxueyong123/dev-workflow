@@ -106,7 +106,7 @@ Each phase has hard gates. Stop at each gate and wait. See [Hard Gates](#hard-ga
 
 **Goal:** Use `interview-me` to drive confidence to ≥ 95%, eliminate all `GUESS` markers, and produce a user-confirmed intent summary BEFORE writing any spec. Define MUST consume this summary — never skip to spec.
 
-1. Invoke `interview-me`. Iterate until confidence ≥ 95% with no unresolved `GUESS` markers.
+1. Invoke `interview-me`. Iterate until confidence ≥ 95% with no unresolved `GUESS` markers. **Do NOT accept a single-question interview as complete** — re-invoke `interview-me` if confidence is below threshold or any GUESS remains. Minimum 3+ question-answer exchanges unless the task is unambiguously trivial.
 2. Output an **intent summary** covering: core goal, user scenarios, boundary constraints, non-goals. Code explorations that answer open questions are recorded as `resolved from code`.
 
 **🔴 GATE 1 — Intent Summary Approval:**
@@ -138,7 +138,7 @@ Each phase has hard gates. Stop at each gate and wait. See [Hard Gates](#hard-ga
 
 1. Invoke `/plan` or `planning-and-task-breakdown`; use `writing-plans`. Resolve implementation decisions: frameworks, libraries, DB, API patterns, file structure, architecture.
 2. Output the plan draft.
-3. Run `grill-with-docs` against the plan draft: verify docs alignment, API correctness, version compatibility.
+3. **MANDATORY — do NOT skip:** Invoke `grill-with-docs` against the plan draft to verify docs alignment, API correctness, version compatibility. This step is not optional. If `grill-with-docs` is unavailable, stop and report — do not proceed without it or explicit degraded-mode approval.
 4. Revise the plan based on grill findings. Summarize changes before presenting the final plan.
 
 **🔴 GATE 4 — Plan Approval:**
