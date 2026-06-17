@@ -85,7 +85,7 @@ Review and security run in parallel when both are triggered. Never skip a phase 
 
 ## Scope Rules
 
-Only typo, formatting-only docs, and metadata copy count as trivial changes. Every behavior change requires Define and Plan, even when the edit is expected to touch one file. Every bug fix requires Define and Plan before Debug/Build.
+Only typo, formatting-only docs, and metadata copy count as trivial changes. Every behavior change requires Define, Plan, and at least a lightweight `interview-me` pass, even when the edit is expected to touch one file. Every bug fix requires Define and Plan before Debug/Build.
 
 | Change type                                                    | Workflow                                               |
 | -------------------------------------------------------------- | ------------------------------------------------------ |
@@ -102,9 +102,14 @@ Each phase has hard gates. Stop at each gate and wait. See [Hard Gates](#hard-ga
 
 ### Define
 
-1. When intent is underspecified, invoke `interview-me` first; then invoke `/spec` or `spec-driven-development`, using `brainstorming` for ambiguity.
-2. For spec review, use `grill-me` to test assumptions, boundaries, success criteria, counterexamples, and risks; use `grill-with-docs` to align terminology, ADRs, context docs, and project knowledge, updating docs in the right place when decisions crystallize.
-3. Output the complete spec draft.
+1. Run a **sub-skill audit** before the spec draft:
+   - interview-me: used / skipped with explicit reason. For any behavior change, use at least a lightweight pass: one hypothesis, confidence, and one question marked `GUESS` unless the user already answered it.
+   - spec-driven-development: used.
+   - grill-me: used.
+   - grill-with-docs: used.
+2. Explore code when it can answer open questions, but record the answer in the spec as `resolved from code`.
+3. `grill-me` and `grill-with-docs` must output conclusions, not just be read: assumptions checked, edge cases resolved, docs/terminology impact.
+4. Gate 1 spec draft must start with: Intent restate, Grill findings, Docs decision; then the complete spec.
 
 **🔴 GATE 1 — Spec Approval:**
 - Ask: "Does this spec look correct? Shall I proceed to the plan phase?"
