@@ -138,7 +138,7 @@ Each phase has hard gates. Stop at each gate and wait. See [Hard Gates](#hard-ga
 
 1. Invoke `/plan` or `planning-and-task-breakdown`; use `writing-plans`. Resolve implementation decisions: frameworks, libraries, DB, API patterns, file structure, architecture.
 2. Output the plan draft.
-3. **MANDATORY — do NOT skip:** Invoke `grill-with-docs` against the plan draft to verify docs alignment, API correctness, version compatibility. This step is not optional. If `grill-with-docs` is unavailable, stop and report — do not proceed without it or explicit degraded-mode approval.
+3. **MANDATORY — invoke the real skill, do NOT fabricate:** Actually call `grill-with-docs` (Skill tool or equivalent) against the plan draft. Paste its raw output verbatim — do NOT summarize, paraphrase, or write a self-invented "grill conclusion". If the skill is unavailable, stop and report. Fabricating grill output is a workflow violation. If the skill returns empty/no findings, state that explicitly rather than inventing content.
 4. Revise the plan based on grill findings. Summarize changes before presenting the final plan.
 
 **🔴 GATE 4 — Plan Approval:**
