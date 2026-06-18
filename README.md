@@ -176,9 +176,7 @@ dev-workflow 编排以下 skill，安装前需确保它们均可用（Intake 阶
 |------|-------|------|------|
 | Agent-Skills | `interview-me`, `spec-driven-development`, `planning-and-task-breakdown`, `code-review-and-quality`, `code-simplification`, `security-and-hardening`, `shipping-and-launch` 等 | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) | 各阶段的主要执行 skill |
 | Superpowers | `brainstorming`, `test-driven-development`, `subagent-driven-development`, `systematic-debugging`, `using-git-worktrees`, `verification-before-completion`, `writing-plans`, `finishing-a-development-branch` | [obra/superpowers](https://github.com/obra/superpowers) | 执行纪律与工程实践 |
-| 独立 skill | `grill-with-docs` | 团队分发 / 本机 skill 目录 | Plan 草稿的文档对齐审查（Plan 阶段必跑） |
-| 独立 skill | `grilling` | 团队分发 / 本机 skill 目录 | `grill-with-docs` 的依赖，提供交互式拷问能力 |
-| 独立 skill | `domain-modeling` | 团队分发 / 本机 skill 目录 | `grill-with-docs` 的依赖，提供领域术语一致性检查 |
+| 独立 skill | `grill-with-docs`, `grilling`, `domain-modeling` | [mattpocock/skills](https://github.com/mattpocock/skills) | Plan 草稿的文档对齐审查（Plan 阶段必跑）；`grill-with-docs` 依赖 `grilling`（交互式拷问）和 `domain-modeling`（领域术语检查） |
 
 ## 安装
 
@@ -197,13 +195,14 @@ dev-workflow 编排以下 skill，安装前需确保它们均可用（Intake 阶
 /plugin install dev-workflow@dev-workflow
 ```
 
-`grill-with-docs`、`grilling`、`domain-modeling` 需手动放入 Claude Code 的 user skills 目录：
+`grill-with-docs`、`grilling`、`domain-modeling` 来自 [mattpocock/skills](https://github.com/mattpocock/skills)，需手动放入 Claude Code 的 user skills 目录：
 
 ```bash
+git clone https://github.com/mattpocock/skills.git /tmp/matt-skills
 mkdir -p ~/.claude/skills
-cp /path/to/grill-with-docs.md ~/.claude/skills/
-cp /path/to/grilling.md ~/.claude/skills/
-cp /path/to/domain-modeling.md ~/.claude/skills/
+cp /tmp/matt-skills/skills/grill-with-docs.md ~/.claude/skills/
+cp /tmp/matt-skills/skills/grilling.md ~/.claude/skills/
+cp /tmp/matt-skills/skills/domain-modeling.md ~/.claude/skills/
 ```
 
 更新后执行 `/reload-plugins`。
@@ -218,7 +217,7 @@ mkdir -p ~/.agents/skills
 cp -R /tmp/agent-skills/skills/* ~/.agents/skills/
 ```
 
-`grill-with-docs`、`grilling`、`domain-modeling` 同样放入 `~/.agents/skills/`。如 Codex 显示的 skill 名带插件前缀，以界面显示为准。
+`grill-with-docs`、`grilling`、`domain-modeling` 来自 [mattpocock/skills](https://github.com/mattpocock/skills)，同样放入 `~/.agents/skills/`。如 Codex 显示的 skill 名带插件前缀，以界面显示为准。
 
 ## 仓库结构
 
