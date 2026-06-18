@@ -209,15 +209,27 @@ cp /tmp/matt-skills/skills/domain-modeling.md ~/.claude/skills/
 
 ### Codex
 
-Superpowers 和 dev-workflow 在 `/plugins` 界面搜索安装。Agent-Skills 需手动安装：
+Superpowers 在 `/plugins` 界面搜索安装。以下 skill 需手动放入 `~/.agents/skills/`：
 
 ```bash
-git clone https://github.com/addyosmani/agent-skills.git /tmp/agent-skills
 mkdir -p ~/.agents/skills
+
+# Agent-Skills
+git clone https://github.com/addyosmani/agent-skills.git /tmp/agent-skills
 cp -R /tmp/agent-skills/skills/* ~/.agents/skills/
+
+# dev-workflow
+git clone https://github.com/liuxueyong123/dev-workflow.git /tmp/dev-workflow
+cp /tmp/dev-workflow/skills/dev-workflow/SKILL.md ~/.agents/skills/dev-workflow.md
+
+# grill-with-docs 及其依赖
+git clone https://github.com/mattpocock/skills.git /tmp/matt-skills
+cp /tmp/matt-skills/skills/grill-with-docs.md ~/.agents/skills/
+cp /tmp/matt-skills/skills/grilling.md ~/.agents/skills/
+cp /tmp/matt-skills/skills/domain-modeling.md ~/.agents/skills/
 ```
 
-`grill-with-docs`、`grilling`、`domain-modeling` 来自 [mattpocock/skills](https://github.com/mattpocock/skills)，同样放入 `~/.agents/skills/`。如 Codex 显示的 skill 名带插件前缀，以界面显示为准。
+如 Codex 显示的 skill 名带插件前缀，以界面显示为准。
 
 ## 仓库结构
 
