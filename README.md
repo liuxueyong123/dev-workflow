@@ -168,23 +168,49 @@ Use dev-workflow to fix a flaky test
 - **验证证据**：无 fresh verification evidence 不报告完成。
 - **完成门禁**：最终报告前每个阶段任务必须为 `completed` 或已给出跳过理由。Simplify 不可跳过。
 
+## 依赖
+
+dev-workflow 编排以下 skill，安装前需确保它们均可用（Intake 阶段会逐一检查）：
+
+| 类别 | Skill | 来源 | 说明 |
+|------|-------|------|------|
+| Agent-Skills | `interview-me`, `spec-driven-development`, `planning-and-task-breakdown`, `code-review-and-quality`, `code-simplification`, `security-and-hardening`, `shipping-and-launch` 等 | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) | 各阶段的主要执行 skill |
+| Superpowers | `brainstorming`, `test-driven-development`, `subagent-driven-development`, `systematic-debugging`, `using-git-worktrees`, `verification-before-completion`, `writing-plans`, `finishing-a-development-branch` | [obra/superpowers](https://github.com/obra/superpowers) | 执行纪律与工程实践 |
+| 独立 skill | `grill-with-docs` | 团队分发 / 本机 skill 目录 | Plan 草稿的文档对齐审查（Plan 阶段必跑） |
+| 独立 skill | `grilling` | 团队分发 / 本机 skill 目录 | `grill-with-docs` 的依赖，提供交互式拷问能力 |
+| 独立 skill | `domain-modeling` | 团队分发 / 本机 skill 目录 | `grill-with-docs` 的依赖，提供领域术语一致性检查 |
+
 ## 安装
 
 ### Claude Code
 
 ```text
+# 1. 安装 Superpowers
 /plugin install superpowers@claude-plugins-official
+
+# 2. 安装 Agent-Skills
 /plugin marketplace add addyosmani/agent-skills
 /plugin install agent-skills@addy-agent-skills
+
+# 3. 安装 dev-workflow
 /plugin marketplace add liuxueyong123/dev-workflow
 /plugin install dev-workflow@dev-workflow
+```
+
+`grill-with-docs`、`grilling`、`domain-modeling` 需手动放入 Claude Code 的 user skills 目录：
+
+```bash
+mkdir -p ~/.claude/skills
+cp /path/to/grill-with-docs.md ~/.claude/skills/
+cp /path/to/grilling.md ~/.claude/skills/
+cp /path/to/domain-modeling.md ~/.claude/skills/
 ```
 
 更新后执行 `/reload-plugins`。
 
 ### Codex
 
-Superpowers 和 dev-workflow 在 `/plugins` 界面搜索安装。Agent-Skills 需手动安装；`grill-with-docs`（及其依赖 `grilling`、`domain-modeling`）是独立 skills，应按本机 skill 目录或团队分发方式安装，不属于 Agent-Skills 仓库：
+Superpowers 和 dev-workflow 在 `/plugins` 界面搜索安装。Agent-Skills 需手动安装：
 
 ```bash
 git clone https://github.com/addyosmani/agent-skills.git /tmp/agent-skills
@@ -192,7 +218,7 @@ mkdir -p ~/.agents/skills
 cp -R /tmp/agent-skills/skills/* ~/.agents/skills/
 ```
 
-如 Codex 显示的 skill 名带插件前缀，以界面显示为准。
+`grill-with-docs`、`grilling`、`domain-modeling` 同样放入 `~/.agents/skills/`。如 Codex 显示的 skill 名带插件前缀，以界面显示为准。
 
 ## 仓库结构
 
