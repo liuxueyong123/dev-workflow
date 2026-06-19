@@ -48,7 +48,7 @@ Five hard gates require explicit user confirmation before proceeding. **Skipping
 | 4    | Plan      | Plan draft output      | User approves plan           |
 | 5    | Ship      | Before external action | User explicitly requests it  |
 
-**Protocol:** Output draft → ask confirmation → **STOP** → wait for user → continue. Common violations: coding after spec output; bundling approval+archive; skipping archive; entering Define before ≥95% confidence.
+**Protocol:** Output draft → ask confirmation → **STOP. Do NOT proceed.** → wait for user → continue. Common violations: coding after spec output; bundling approval+archive; skipping archive; entering Define before ≥95% confidence.
 
 ## Workflow
 
@@ -62,20 +62,20 @@ Review and security run in parallel when both are triggered. Never skip a phase 
 
 ## Phase Ownership
 
-| Phase               | Primary                                                                                                                        | Secondary                                    | Exit gate                                                                                                                                  |
-| ------------------- | ------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| Intake              | Capability check (see Capability Gate)                                                                                         | —                                            | Agent-Skills, standalone skills, and Superpowers confirmed, or degraded mode explicitly approved                                           |
-| Interview           | Agent-Skills `interview-me`                                                                                                    | Superpowers `brainstorming`                  | Confidence ≥ 95%; all GUESS markers resolved; intent summary output and approved by user (Gate 1)                                          |
-| Define              | Agent-Skills `spec-driven-development`                                                                                         | Superpowers `brainstorming`                  | Spec from approved intent summary; behavior-only (no implementation); archive recorded                                                     |
-| Plan                | Agent-Skills `planning-and-task-breakdown` or `/plan`; standalone `grill-with-docs`                                            | Superpowers `writing-plans`                  | Plan drafted, grilled, revised; user-approved; archived if archive chosen at Gate 3                                                        |
-| Isolate             | Superpowers `using-git-worktrees`                                                                                              | Agent-Skills `git-workflow-and-versioning`   | Work area is safe                                                                                                                          |
-| Build               | Superpowers `subagent-driven-development` (default, subagents do TDD); inline `test-driven-development` for single/overlapping tasks | Agent-Skills `incremental-implementation` | Approved spec/plan implemented; focused tests pass |
-| Debug (conditional) | Superpowers `systematic-debugging`                                                                                             | Agent-Skills `debugging-and-error-recovery`  | Root cause fixed, regression test added                                                                                                    |
-| Review              | Agent-Skills `code-review-and-quality` or `/review`                                                                            | Superpowers `requesting-code-review`         | CRITICAL/HIGH fixed; IMPORTANT/MINOR captured for Simplify                                                                                 |
-| Security            | Security: Agent-Skills `security-and-hardening`                                                                                | Project audit commands                       | Security-sensitive findings addressed                                                                                                      |
-| Simplify            | Agent-Skills `code-simplification` or `/code-simplify`                                                                         | Superpowers `verification-before-completion` | Every review finding addressed (fixed, deferred with comment, or rejected). No dupes, dead code, or >50-line functions; behavior unchanged |
-| Verify              | Superpowers `verification-before-completion`                                                                                   | Agent-Skills `/test`                         | Fresh evidence collected                                                                                                                   |
-| Ship                | Agent-Skills `shipping-and-launch` or `/ship`                                                                                  | Superpowers `finishing-a-development-branch` | User-approved external action                                                                                                              |
+| Phase               | Primary                                                                                                                              | Secondary                                    | Exit gate                                                                                                                                  |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| Intake              | Capability check (see Capability Gate)                                                                                               | —                                            | Agent-Skills, standalone skills, and Superpowers confirmed, or degraded mode explicitly approved                                           |
+| Interview           | Agent-Skills `interview-me`                                                                                                          | Superpowers `brainstorming`                  | Confidence ≥ 95%; all GUESS markers resolved; intent summary output and approved by user (Gate 1)                                          |
+| Define              | Agent-Skills `spec-driven-development`                                                                                               | Superpowers `brainstorming`                  | Spec from approved intent summary; behavior-only (no implementation); archive recorded                                                     |
+| Plan                | Agent-Skills `planning-and-task-breakdown` or `/plan`; standalone `grill-with-docs`                                                  | Superpowers `writing-plans`                  | Plan drafted, grilled, revised; user-approved; archived if archive chosen at Gate 3                                                        |
+| Isolate             | Superpowers `using-git-worktrees`                                                                                                    | Agent-Skills `git-workflow-and-versioning`   | Work area is safe                                                                                                                          |
+| Build               | Superpowers `subagent-driven-development` (default, subagents do TDD); inline `test-driven-development` for single/overlapping tasks | Agent-Skills `incremental-implementation`    | Approved spec/plan implemented; focused tests pass                                                                                         |
+| Debug (conditional) | Superpowers `systematic-debugging`                                                                                                   | Agent-Skills `debugging-and-error-recovery`  | Root cause fixed, regression test added                                                                                                    |
+| Review              | Agent-Skills `code-review-and-quality` or `/review`                                                                                  | Superpowers `requesting-code-review`         | CRITICAL/HIGH fixed; IMPORTANT/MINOR captured for Simplify                                                                                 |
+| Security            | Security: Agent-Skills `security-and-hardening`                                                                                      | Project audit commands                       | Security-sensitive findings addressed                                                                                                      |
+| Simplify            | Agent-Skills `code-simplification` or `/code-simplify`                                                                               | Superpowers `verification-before-completion` | Every review finding addressed (fixed, deferred with comment, or rejected). No dupes, dead code, or >50-line functions; behavior unchanged |
+| Verify              | Superpowers `verification-before-completion`                                                                                         | Agent-Skills `/test`                         | Fresh evidence collected                                                                                                                   |
+| Ship                | Agent-Skills `shipping-and-launch` or `/ship`                                                                                        | Superpowers `finishing-a-development-branch` | User-approved external action                                                                                                              |
 
 ## Scope Rules
 
@@ -108,16 +108,15 @@ Ask: "Is this intent summary accurate and complete? May I proceed to write the s
 
 **Prerequisite:** Gate 1 passed, intent summary approved.
 
-**Content boundary:** Spec = WHAT/WHY (behavior, scenarios, constraints, acceptance). Plan = HOW (code, architecture, APIs, DB, files). No implementation detail in spec — that is the Plan phase's job.
-
-1. With the approved intent summary, run `spec-driven-development` to write the spec.
-2. Spec draft header: intent recap; then the complete spec (behavior-only, no code, no architecture).
+1. With the approved intent summary, use `spec-driven-development` only to draft spec content for the conversation.
+2. Override delegated skill file-save rules in this workflow: before Gate 2 approval and Gate 3 archive choice, do NOT create or modify any spec, intent, plan, task, code, or docs file.
+3. Spec draft header: intent recap; then the complete spec (behavior-only, no code, no architecture).
 
 **🔴 GATE 2 — Spec Approval:**
 Ask: "Does this spec look correct? Shall I proceed to the plan phase?" → **STOP.** Wait for explicit user confirmation.
 
 **🔴 GATE 3 — Archive Decision:**
-Ask: "Archive intent summary and spec to `docs/<feature>/`?" → **STOP until the user answers.** Archive: write `docs/<feature>/intent.md` + `docs/<feature>/spec.md`. Otherwise skip.
+Ask: "Archive intent summary and spec to `docs/<feature>/`?" → **STOP until the user answers.** Archive only after explicit archive approval: write `docs/<feature>/intent.md` + `docs/<feature>/spec.md`. Otherwise skip all intent/spec filesystem writes.
 
 ### Plan
 
@@ -129,7 +128,7 @@ Ask: "Archive intent summary and spec to `docs/<feature>/`?" → **STOP until th
 4. Revise the plan based on the actual grill Q&A. Present the final plan in Chinese with a summary of what changed.
 
 **🔴 GATE 4 — Plan Approval:**
-Ask: "Does this plan look correct? Shall I proceed?" → **STOP.** After confirmation: archive plan if Gate 3 chose archive. Then Build.
+Ask: "Does this plan look correct? Shall I proceed?" → **STOP.** After confirmation: archive the whole final plan if Gate 3 chose archive. Then Build.
 
 ### Document Rules
 
