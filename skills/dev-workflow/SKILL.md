@@ -128,7 +128,7 @@ Ask: "Archive intent summary and spec to `docs/<feature>/`?" → **STOP until th
 4. Revise the plan based on the actual grill Q&A. Present the final plan in Chinese with a summary of what changed.
 
 **🔴 GATE 4 — Plan Approval:**
-Ask: "Does this plan look correct? Shall I proceed?" → **STOP.** After confirmation: archive the whole final plan if Gate 3 chose archive. Then Build.
+Ask: "Does this plan look correct? Shall I proceed?" → **STOP.** After confirmation: if Gate 3 chose archive, write the whole final plan to `docs/<feature>/plan.md` and verify the write before Build. If the write fails, STOP and report it. If Gate 3 chose no archive, do not write plan docs. Then Build.
 
 ### Document Rules
 
@@ -138,7 +138,7 @@ Ask: "Does this plan look correct? Shall I proceed?" → **STOP.** After confirm
 - `intent.md` for confirmed intent summary, `spec.md` for confirmed spec, `plan.md` for confirmed plan.
 - If `docs/<feature>/` already exists, auto-suffix with `-2`, `-3`, etc. Never silently overwrite an existing directory.
 
-**CRITICAL:** Never skip Interview→spec. Never output spec/plan then code. Spec approval → archive + plan only. Plan approval → local execution only.
+**CRITICAL:** Never skip Interview→spec. Never output spec/plan then code. Spec approval → archive + plan only. Plan approval → archive-before-Build if Gate 3 chose archive; local execution only after that.
 
 ## Execute (Build → Debug → Review)
 
@@ -166,7 +166,7 @@ Every phase task `completed` or `deleted` (with reason) before final report. Sim
 
 ## Approval Boundaries
 
-Plan approval authorizes: local edits, tests, lint/typecheck/build, review, simplification, local verification. Stop for explicit approval before: commits (with unrelated user work), push, PR, merge, publish, deploy, credential changes, destructive data changes.
+Plan approval authorizes: required plan archive from Gate 4, local edits, tests, lint/typecheck/build, review, simplification, local verification. It does not authorize skipping the plan archive when Gate 3 chose archive. Stop for explicit approval before: commits (with unrelated user work), push, PR, merge, publish, deploy, credential changes, destructive data changes.
 
 ## Response Shape
 
