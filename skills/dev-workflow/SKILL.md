@@ -110,7 +110,7 @@ Ask: "Is this intent summary accurate and complete? May I proceed to write the s
 
 1. With the approved intent summary, use `spec-driven-development` only to draft spec content for the conversation.
 2. Override delegated skill file-save rules in this workflow: before Gate 2 approval and Gate 3 archive choice, do NOT create or modify any spec, intent, plan, task, code, or docs file.
-3. Spec draft header: intent recap; then the complete spec (behavior-only, no code, no architecture).
+3. Spec draft header: intent recap; then the complete spec (behavior-only, no code, no architecture). Preserve the full raw spec draft in conversation state; if the user requests changes, track each revision request and decision for archive fidelity.
 
 **🔴 GATE 2 — Spec Approval:**
 Ask: "Does this spec look correct? Shall I proceed to the plan phase?" → **STOP.** Wait for explicit user confirmation.
@@ -125,10 +125,10 @@ Ask: "Archive intent summary and spec to `docs/<feature>/`?" → **STOP until th
 1. Invoke `/plan` or `planning-and-task-breakdown`; use `writing-plans`. Resolve implementation decisions: frameworks, libraries, DB, API patterns, file structure, architecture.
 2. Output the raw plan draft in Chinese. Do NOT include grill findings here — the draft is un-reviewed.
 3. **MANDATORY:** Now invoke `grill-with-docs` via the Skill tool against the raw plan draft. The skill works interactively — relay each question to the user one at a time, wait for the answer, then relay the next. Do NOT batch all output at once. Do NOT write your own assessment under a "grill" label. Fabricating output = workflow violation.
-4. Revise the plan based on the actual grill Q&A. Present the final plan in Chinese with a summary of what changed.
+4. Revise the plan based on the actual grill Q&A. Present the final plan in Chinese with a summary of what changed. Preserve the full raw plan draft and actual grill Q&A/findings for archive fidelity.
 
 **🔴 GATE 4 — Plan Approval:**
-Ask: "Does this plan look correct? Shall I proceed?" → **STOP.** After confirmation: if Gate 3 chose archive, write the whole final plan to `docs/<feature>/plan.md` and verify the write before Build. If the write fails, STOP and report it. If Gate 3 chose no archive, do not write plan docs. Then Build.
+Ask: "Does this plan look correct? Shall I proceed?" → **STOP.** After confirmation: if Gate 3 chose archive, write the complete plan archive packet to `docs/<feature>/plan.md` and verify the write before Build. If the write fails, STOP and report it. If Gate 3 chose no archive, do not write plan docs. Then Build.
 
 ### Document Rules
 
@@ -137,8 +137,11 @@ Ask: "Does this plan look correct? Shall I proceed?" → **STOP.** After confirm
 - Store under `docs/<feature>/` (kebab-case).
 - `intent.md` for confirmed intent summary, `spec.md` for confirmed spec, `plan.md` for confirmed plan.
 - If `docs/<feature>/` already exists, auto-suffix with `-2`, `-3`, etc. Never silently overwrite an existing directory.
+- Archive fidelity is mandatory: never replace a detailed raw draft with only a short revised summary.
+- `spec.md` must include raw spec draft, revision requests/decisions, final approved spec, and change summary when the spec changed after feedback.
+- `plan.md` must include raw plan draft, actual grill Q&A/findings, final approved plan, and change summary.
 
-**CRITICAL:** Never skip Interview→spec. Never output spec/plan then code. Spec approval → archive + plan only. Plan approval → archive-before-Build if Gate 3 chose archive; local execution only after that.
+**CRITICAL:** Never skip Interview→spec. Never output spec/plan then code. Spec approval → archive choice + plan only. Plan approval → archive-before-Build if Gate 3 chose archive; local execution only after that.
 
 ## Execute (Build → Debug → Review)
 

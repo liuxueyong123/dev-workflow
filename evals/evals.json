@@ -70,7 +70,13 @@
     {
       "id": "spec-plan-archive",
       "prompt": "Use dev-workflow for a multi-file feature. After the spec looks good, the user says to archive the workflow docs.",
-      "expected_output": "Presents the spec draft in the conversation and waits for confirmation. After spec approval, asks whether to archive. When the user chooses archive, writes the confirmed Chinese spec to docs/<feature>/spec.md, later presents the plan draft in the conversation for confirmation, and writes the confirmed Chinese plan to docs/<feature>/plan.md.",
+      "expected_output": "Presents the spec draft in the conversation and waits for confirmation. After spec approval, asks whether to archive. When the user chooses archive, writes the confirmed Chinese spec archive packet to docs/<feature>/spec.md, later presents the plan draft in the conversation for confirmation, and writes the confirmed Chinese plan archive packet to docs/<feature>/plan.md.",
+      "files": []
+    },
+    {
+      "id": "archive-preserves-draft-review-final",
+      "prompt": "Use dev-workflow for a feature. The initial spec and raw plan draft are detailed, then the user and grill-with-docs request a shorter corrected version before choosing archive.",
+      "expected_output": "Does not archive only the shortened final revision. When archive is chosen, docs/<feature>/spec.md preserves the raw spec draft, revision requests or decisions, final approved spec, and change summary. docs/<feature>/plan.md preserves the raw plan draft, actual grill Q&A or findings, final approved plan, and change summary.",
       "files": []
     },
     {
