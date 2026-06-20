@@ -124,7 +124,7 @@ Ask: "Archive intent summary and spec to `docs/<feature>/`?" → **STOP until th
 
 1. Invoke `/plan` or `planning-and-task-breakdown`; use `writing-plans`. Resolve implementation decisions: frameworks, libraries, DB, API patterns, file structure, architecture.
 2. Output the raw plan draft in Chinese. Do NOT include grill findings here — the draft is un-reviewed.
-3. **MANDATORY:** Now invoke `grill-with-docs` via the Skill tool against the raw plan draft. The skill works interactively — relay each question to the user one at a time, wait for the answer, then relay the next. Do NOT batch all output at once. Do NOT write your own assessment under a "grill" label. Fabricating output = workflow violation.
+3. **MANDATORY:** Apply `grill-with-docs` to the raw plan draft before revising the plan. In Claude Code, invoke the skill with the Skill tool. In Codex, load and follow `grill-with-docs/SKILL.md` using Codex's native skill-loading rules. Announce that `grill-with-docs` is active, then relay each question to the user one at a time, wait for the answer, and continue until the skill's questioning is complete. Do NOT batch all output at once. Do NOT write your own assessment under a "grill" label. Do NOT proceed to the final plan or Gate 4 without actual grill Q&A. Fabricating or skipping output = workflow violation.
 4. Revise the plan based on the actual grill Q&A. Present the final plan in Chinese with a summary of what changed. Preserve the full raw plan draft and actual grill Q&A/findings for archive fidelity.
 
 **🔴 GATE 4 — Plan Approval:**
